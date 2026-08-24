@@ -67,55 +67,55 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
         },
       });
 
-      // Card 01: WHO I AM (0.07 to 0.25)
+      // Section 01: IDENTITY (Left-aligned, 0.07 to 0.25)
       tl.fromTo(
         '#experience-card-01',
-        { autoAlpha: 0, y: 30, scale: 0.96, pointerEvents: 'none' },
-        { autoAlpha: 1, y: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
+        { autoAlpha: 0, x: -35, scale: 0.98, pointerEvents: 'none' },
+        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
         0.07
       ).to(
         '#experience-card-01',
-        { autoAlpha: 0, y: -20, scale: 0.96, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        { autoAlpha: 0, x: -25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
         0.22
       );
 
-      // Card 02: MY JOURNEY (0.26 to 0.45)
+      // Section 02: JOURNEY (Right-aligned, 0.26 to 0.45)
       tl.fromTo(
         '#experience-card-02',
-        { autoAlpha: 0, y: 30, scale: 0.96, pointerEvents: 'none' },
-        { autoAlpha: 1, y: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
+        { autoAlpha: 0, x: 35, scale: 0.98, pointerEvents: 'none' },
+        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
         0.26
       ).to(
         '#experience-card-02',
-        { autoAlpha: 0, y: -20, scale: 0.96, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        { autoAlpha: 0, x: 25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
         0.42
       );
 
-      // Card 03: WHAT I CODE (0.46 to 0.65)
+      // Section 03: TECH STACK (Left-aligned, 0.46 to 0.65)
       tl.fromTo(
         '#experience-card-03',
-        { autoAlpha: 0, y: 30, scale: 0.96, pointerEvents: 'none' },
-        { autoAlpha: 1, y: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
+        { autoAlpha: 0, x: -35, scale: 0.98, pointerEvents: 'none' },
+        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
         0.46
       ).to(
         '#experience-card-03',
-        { autoAlpha: 0, y: -20, scale: 0.96, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        { autoAlpha: 0, x: -25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
         0.62
       );
 
-      // Card 04: BUILDING WITH AI (0.66 to 0.83)
+      // Section 04: AI & SYSTEMS (Right-aligned, 0.66 to 0.83)
       tl.fromTo(
         '#experience-card-04',
-        { autoAlpha: 0, y: 30, scale: 0.96, pointerEvents: 'none' },
-        { autoAlpha: 1, y: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
+        { autoAlpha: 0, x: 35, scale: 0.98, pointerEvents: 'none' },
+        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
         0.66
       ).to(
         '#experience-card-04',
-        { autoAlpha: 0, y: -20, scale: 0.96, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        { autoAlpha: 0, x: 25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
         0.80
       );
 
-      // Card 05: THE MANIFESTO (0.84 to 0.98)
+      // Section 05: MANIFESTO (Centered, 0.84 to 0.98)
       tl.fromTo(
         '#experience-card-05',
         { autoAlpha: 0, y: 35, scale: 0.95, pointerEvents: 'none' },
@@ -123,12 +123,18 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
         0.84
       ).to(
         '#experience-card-05',
-        { autoAlpha: 0, y: -15, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        { autoAlpha: 0, y: -20, scale: 1.02, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
         0.96
       );
     }, container);
 
+    // Trigger recalculation after layout has settled
+    const refreshTimeout = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 200);
+
     return () => {
+      clearTimeout(refreshTimeout);
       ctx.revert();
     };
   }, [totalFrames]);
@@ -144,11 +150,11 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
       }}
       aria-label="Section 2: Experience & Spatial Identity Sequence"
     >
-      {/* Sticky Cinematic 100vw x 100vh Viewport */}
+      {/* Pinned Cinematic 100vw x 100vh Viewport */}
       <div
         id="experience-sticky-stage"
         ref={stickyRef}
-        className="sticky top-0 left-0 w-full h-screen overflow-hidden z-10 flex items-center justify-center bg-black"
+        className="w-full h-screen overflow-hidden z-10 flex items-center justify-center bg-black relative"
       >
         {/* 1. Ultra-High Performance Image Sequence Canvas with hardware decoding & RAF scheduler */}
         <ImageSequenceCanvas

@@ -15,7 +15,6 @@ import {
   WireframeGlobe,
 } from './components/SVGs';
 import { Drawers, DrawerType } from './components/Drawers';
-import Lanyard from './components/Lanyard/Lanyard';
 import ExperienceSection from './components/ExperienceSection/ExperienceSection';
 
 export default function App() {
@@ -238,36 +237,15 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Section with Interactive 3D Lanyard & Feature Block */}
+          {/* Right Section with Architectural Feature Block */}
           <div
             id="hero-right-container"
-            className="self-center lg:self-stretch flex flex-col justify-between items-center lg:items-end w-full lg:w-[480px] xl:w-[560px] mt-6 lg:mt-0 relative z-20 pointer-events-auto"
+            className="self-center lg:self-end flex flex-col justify-end items-center lg:items-end w-full lg:w-auto mt-10 lg:mt-0 relative z-20 pointer-events-auto"
           >
-            {/* 3D Lanyard Card placed in the right corner */}
-            <div
-              id="hero-lanyard-wrapper"
-              className="w-full h-[440px] sm:h-[500px] lg:h-[520px] xl:h-[560px] relative pointer-events-auto flex items-center justify-center"
-            >
-              <Lanyard
-                position={[0, 0, 18.5]}
-                gravity={[0, -40, 0]}
-                frontImage="/piyu.jpg"
-                backImage="/piyu.jpg"
-                imageFit="cover"
-                lanyardWidth={1.2}
-                cardScale={2.9}
-              />
-              {/* Subtle floating hint */}
-              <div className="absolute bottom-2 right-2 flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/60 border border-neutral-800 text-[10px] uppercase font-mono tracking-widest text-neutral-400 select-none pointer-events-none backdrop-blur-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>DRAG CARD</span>
-              </div>
-            </div>
-
-            {/* Right Lower Feature Block (Bottom-aligned on desktop) */}
+            {/* Right Feature Block */}
             <div
               id="hero-right-feature-block"
-              className="self-start lg:self-end mt-4 lg:mt-0 relative"
+              className="self-start lg:self-end relative"
             >
               {/* Framed box with 4 absolute corner brackets (no background card) */}
               <div

@@ -5,13 +5,7 @@ import {
   AI_PILLARS,
   CHAPTERS,
 } from './experienceData';
-import {
-  CornerBracketTL,
-  CornerBracketTR,
-  CornerBracketBL,
-  CornerBracketBR,
-} from '../SVGs';
-import { Sparkles, Terminal, Cpu, Layers, Compass, ArrowDownRight } from 'lucide-react';
+import { Terminal, Cpu, Layers, Compass, ArrowDownRight } from 'lucide-react';
 
 export interface ExperienceCardsHandle {
   updateTelemetry: (progress: number, frameIndex: number) => void;
@@ -198,266 +192,186 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* 4. CINEMATIC GLASSMORPHIC CARDS (GPU Hardware Accelerated)    */}
+        {/* 4. FULLSCREEN OPEN TYPOGRAPHY (LEFT, RIGHT, CENTER)           */}
         {/* ------------------------------------------------------------- */}
 
-        {/* CARD 01: WHO I AM */}
+        {/* 01: IDENTITY (Positioned on LEFT) */}
         <div
           id="experience-card-01"
-          className="absolute z-20 left-4 right-4 sm:left-12 lg:left-24 sm:right-auto top-1/2 -translate-y-1/2 max-w-md pointer-events-none"
+          className="absolute z-20 left-6 sm:left-14 md:left-20 lg:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
           style={{
             willChange: 'transform, opacity',
-            transform: 'translate3d(0, 30px, 0) scale(0.96)',
+            transform: 'translate3d(0, 30px, 0) scale(0.98)',
             opacity: 0,
             visibility: 'hidden',
           }}
         >
-          <div className="relative p-6 md:p-8 rounded-xl bg-neutral-950/80 border border-white/15 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.85)] overflow-hidden">
-            {/* Corner Brackets */}
-            <div className="absolute top-0 left-0 text-white/50">
-              <CornerBracketTL id="card1-tl" />
-            </div>
-            <div className="absolute top-0 right-0 text-white/50">
-              <CornerBracketTR id="card1-tr" />
-            </div>
-            <div className="absolute bottom-0 left-0 text-white/50">
-              <CornerBracketBL id="card1-bl" />
-            </div>
-            <div className="absolute bottom-0 right-0 text-white/50">
-              <CornerBracketBR id="card1-br" />
-            </div>
-
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-mono text-[10px] tracking-widest uppercase px-2 py-0.5 rounded bg-white/10 text-white border border-white/10">
-                01 // IDENTITY
-              </span>
-              <Sparkles size={14} className="text-white/60" />
-            </div>
-
-            <span className="text-[11px] font-mono tracking-widest text-neutral-400 uppercase block mb-1">
-              WHO I AM
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            <span className="font-mono text-xs tracking-[0.3em] uppercase text-neutral-400">
+              01 // IDENTITY
             </span>
-            <h2 className="font-orbitron text-2xl md:text-3xl font-extrabold text-white tracking-wide uppercase mb-2">
-              Piyush
-            </h2>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="text-xs uppercase tracking-wider font-medium text-neutral-200 bg-neutral-900/90 px-2.5 py-1 rounded border border-neutral-800">
-                Creative Developer
-              </span>
-              <span className="text-xs uppercase tracking-wider font-medium text-neutral-200 bg-neutral-900/90 px-2.5 py-1 rounded border border-neutral-800">
-                AI Builder
-              </span>
-              <span className="text-xs uppercase tracking-wider font-medium text-neutral-200 bg-neutral-900/90 px-2.5 py-1 rounded border border-neutral-800">
-                Digital Creator
-              </span>
-            </div>
-
-            <p className="text-xs md:text-sm text-neutral-300 leading-relaxed font-light">
-              “I enjoy turning ideas into interactive digital experiences, AI-powered tools, and scalable products with meticulous design and engineering.”
-            </p>
           </div>
+
+          <span className="text-xs font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-1">
+            WHO I AM
+          </span>
+          <h2 className="font-orbitron text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black text-white tracking-tight uppercase leading-none mb-4 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+            PIYUSH
+          </h2>
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-5 font-mono text-xs sm:text-sm tracking-wider uppercase text-neutral-300">
+            <span className="text-white font-semibold">CREATIVE DEVELOPER</span>
+            <span className="text-neutral-600 font-light">/</span>
+            <span className="text-white font-semibold">AI BUILDER</span>
+            <span className="text-neutral-600 font-light">/</span>
+            <span className="text-white font-semibold">SYSTEMS ARCHITECT</span>
+          </div>
+
+          <p className="text-sm sm:text-base md:text-lg text-neutral-200 font-light leading-relaxed max-w-lg drop-shadow-[0_2px_16px_rgba(0,0,0,0.95)]">
+            “I turn ideas into interactive digital experiences, AI-powered tools, and scalable systems with meticulous design and engineering.”
+          </p>
         </div>
 
-        {/* CARD 02: MY JOURNEY */}
+        {/* 02: JOURNEY (Positioned on RIGHT) */}
         <div
           id="experience-card-02"
-          className="absolute z-20 left-4 right-4 sm:right-12 lg:right-24 sm:left-auto top-1/2 -translate-y-1/2 max-w-lg pointer-events-none"
+          className="absolute z-20 right-6 sm:right-14 md:right-20 lg:right-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
           style={{
             willChange: 'transform, opacity',
-            transform: 'translate3d(0, 30px, 0) scale(0.96)',
+            transform: 'translate3d(0, 30px, 0) scale(0.98)',
             opacity: 0,
             visibility: 'hidden',
           }}
         >
-          <div className="relative p-6 md:p-8 rounded-xl bg-neutral-950/80 border border-white/15 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.85)] overflow-hidden pointer-events-auto">
-            {/* Corner Brackets */}
-            <div className="absolute top-0 left-0 text-white/50">
-              <CornerBracketTL id="card2-tl" />
-            </div>
-            <div className="absolute top-0 right-0 text-white/50">
-              <CornerBracketTR id="card2-tr" />
-            </div>
-            <div className="absolute bottom-0 left-0 text-white/50">
-              <CornerBracketBL id="card2-bl" />
-            </div>
-            <div className="absolute bottom-0 right-0 text-white/50">
-              <CornerBracketBR id="card2-br" />
-            </div>
-
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-mono text-[10px] tracking-widest uppercase px-2 py-0.5 rounded bg-white/10 text-white border border-white/10">
-                02 // PROGRESSION
-              </span>
-              <Layers size={14} className="text-white/60" />
-            </div>
-
-            <span className="text-[11px] font-mono tracking-widest text-neutral-400 uppercase block mb-1">
-              TRAJECTORY & MILESTONES
+          <div className="flex items-center gap-2 mb-2">
+            <Layers size={14} className="text-white/80" />
+            <span className="font-mono text-xs tracking-[0.3em] uppercase text-neutral-400">
+              02 // PROGRESSION
             </span>
-            <h2 className="font-orbitron text-xl md:text-2xl font-extrabold text-white tracking-wide uppercase mb-4">
-              MY JOURNEY
-            </h2>
+          </div>
 
-            <div className="space-y-2.5 max-h-[290px] overflow-y-auto pr-1">
-              {JOURNEY_MILESTONES.map((item) => (
-                <div
-                  key={item.number}
-                  className="flex items-start gap-3 p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800/80 hover:border-neutral-700 transition-colors"
-                >
-                  <span className="font-mono text-xs font-bold text-white/90 bg-neutral-800 px-1.5 py-0.5 rounded shrink-0">
-                    {item.number}
-                  </span>
-                  <div>
-                    <h3 className="text-xs font-semibold text-white uppercase tracking-wider">
-                      {item.title}
-                    </h3>
-                    <p className="text-[11px] text-neutral-400 mt-0.5 leading-relaxed font-light">
-                      {item.description}
-                    </p>
-                  </div>
+          <span className="text-xs font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-1">
+            TRAJECTORY & MILESTONES
+          </span>
+          <h2 className="font-orbitron text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-none mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+            MY JOURNEY
+          </h2>
+
+          <div className="space-y-4 max-w-lg">
+            {JOURNEY_MILESTONES.map((item) => (
+              <div key={item.number} className="group flex items-start gap-4">
+                <span className="font-mono text-sm sm:text-base font-bold text-white tracking-widest pt-0.5 shrink-0 drop-shadow">
+                  {item.number}
+                </span>
+                <div className="border-l border-neutral-700/80 pl-3.5">
+                  <h3 className="font-mono text-xs sm:text-sm font-semibold text-white tracking-wider uppercase drop-shadow">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs sm:text-[13px] text-neutral-300 leading-relaxed font-light mt-0.5 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+                    {item.description}
+                  </p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* CARD 03: WHAT I CODE */}
+        {/* 03: TECH STACK (Positioned on LEFT) */}
         <div
           id="experience-card-03"
-          className="absolute z-20 left-4 right-4 sm:left-12 lg:left-24 sm:right-auto top-1/2 -translate-y-1/2 max-w-xl pointer-events-none"
+          className="absolute z-20 left-6 sm:left-14 md:left-20 lg:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
           style={{
             willChange: 'transform, opacity',
-            transform: 'translate3d(0, 30px, 0) scale(0.96)',
+            transform: 'translate3d(0, 30px, 0) scale(0.98)',
             opacity: 0,
             visibility: 'hidden',
           }}
         >
-          <div className="relative p-6 md:p-8 rounded-xl bg-neutral-950/80 border border-white/15 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.85)] overflow-hidden pointer-events-auto">
-            {/* Corner Brackets */}
-            <div className="absolute top-0 left-0 text-white/50">
-              <CornerBracketTL id="card3-tl" />
-            </div>
-            <div className="absolute top-0 right-0 text-white/50">
-              <CornerBracketTR id="card3-tr" />
-            </div>
-            <div className="absolute bottom-0 left-0 text-white/50">
-              <CornerBracketBL id="card3-bl" />
-            </div>
-            <div className="absolute bottom-0 right-0 text-white/50">
-              <CornerBracketBR id="card3-br" />
-            </div>
-
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-mono text-[10px] tracking-widest uppercase px-2 py-0.5 rounded bg-white/10 text-white border border-white/10">
-                03 // TECHNICAL STACK
-              </span>
-              <Terminal size={14} className="text-white/60" />
-            </div>
-
-            <span className="text-[11px] font-mono tracking-widest text-neutral-400 uppercase block mb-1">
-              LANGUAGES, FRAMEWORKS & SYSTEMS
+          <div className="flex items-center gap-2 mb-2">
+            <Terminal size={14} className="text-white/80" />
+            <span className="font-mono text-xs tracking-[0.3em] uppercase text-neutral-400">
+              03 // TECHNICAL STACK
             </span>
-            <h2 className="font-orbitron text-xl md:text-2xl font-extrabold text-white tracking-wide uppercase mb-4">
-              WHAT I CODE
-            </h2>
+          </div>
 
-            <div className="space-y-3.5">
-              {SKILL_CATEGORIES.map((cat) => (
-                <div key={cat.category} className="space-y-1.5">
-                  <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase">
-                    {cat.category}
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {cat.skills.map((skill) => (
-                      <span
-                        key={skill.name}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-mono tracking-wide transition-all ${
-                          skill.level === 'primary'
-                            ? 'bg-neutral-900/90 text-white border border-neutral-700 hover:border-neutral-500'
-                            : 'bg-neutral-950/70 text-neutral-300 border border-neutral-800'
-                        }`}
-                      >
-                        <span className="w-1 h-1 rounded-full bg-neutral-400" />
-                        <span>{skill.name}</span>
-                        <span className="text-[9px] text-neutral-500 uppercase">[{skill.tag}]</span>
+          <span className="text-xs font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-1">
+            LANGUAGES, FRAMEWORKS & SYSTEMS
+          </span>
+          <h2 className="font-orbitron text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-none mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+            WHAT I CODE
+          </h2>
+
+          <div className="space-y-5 max-w-xl">
+            {SKILL_CATEGORIES.map((cat) => (
+              <div key={cat.category} className="space-y-2">
+                <span className="text-[11px] font-mono tracking-[0.25em] text-neutral-400 uppercase block">
+                  // {cat.category}
+                </span>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {cat.skills.map((skill) => (
+                    <div key={skill.name} className="flex items-center gap-2 font-mono text-xs sm:text-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
+                      <span className="text-white font-medium tracking-wide drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                        {skill.name}
                       </span>
-                    ))}
-                  </div>
+                      <span className="text-[10px] text-neutral-500 font-normal">[{skill.tag}]</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* CARD 04: BUILDING WITH AI */}
+        {/* 04: AI & SYSTEMS (Positioned on RIGHT) */}
         <div
           id="experience-card-04"
-          className="absolute z-20 left-4 right-4 sm:right-12 lg:right-24 sm:left-auto top-1/2 -translate-y-1/2 max-w-xl pointer-events-none"
+          className="absolute z-20 right-6 sm:right-14 md:right-20 lg:right-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
           style={{
             willChange: 'transform, opacity',
-            transform: 'translate3d(0, 30px, 0) scale(0.96)',
+            transform: 'translate3d(0, 30px, 0) scale(0.98)',
             opacity: 0,
             visibility: 'hidden',
           }}
         >
-          <div className="relative p-6 md:p-8 rounded-xl bg-neutral-950/80 border border-white/15 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.85)] overflow-hidden pointer-events-auto">
-            {/* Corner Brackets */}
-            <div className="absolute top-0 left-0 text-white/50">
-              <CornerBracketTL id="card4-tl" />
-            </div>
-            <div className="absolute top-0 right-0 text-white/50">
-              <CornerBracketTR id="card4-tr" />
-            </div>
-            <div className="absolute bottom-0 left-0 text-white/50">
-              <CornerBracketBL id="card4-bl" />
-            </div>
-            <div className="absolute bottom-0 right-0 text-white/50">
-              <CornerBracketBR id="card4-br" />
-            </div>
-
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-mono text-[10px] tracking-widest uppercase px-2 py-0.5 rounded bg-white/10 text-white border border-white/10">
-                04 // CAPABILITIES
-              </span>
-              <Cpu size={14} className="text-white/60" />
-            </div>
-
-            <span className="text-[11px] font-mono tracking-widest text-neutral-400 uppercase block mb-1">
-              CREATIVE ENGINEERING & AGENTS
+          <div className="flex items-center gap-2 mb-2">
+            <Cpu size={14} className="text-white/80" />
+            <span className="font-mono text-xs tracking-[0.3em] uppercase text-neutral-400">
+              04 // CAPABILITIES
             </span>
-            <h2 className="font-orbitron text-xl md:text-2xl font-extrabold text-white tracking-wide uppercase mb-4">
-              BUILDING WITH AI
-            </h2>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {AI_PILLARS.map((pillar) => (
-                <div
-                  key={pillar.title}
-                  className="p-3 rounded-lg bg-neutral-900/70 border border-neutral-800 hover:border-neutral-700 transition-colors flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                        {pillar.title}
-                      </h3>
-                      <span className="text-[9px] font-mono uppercase text-neutral-400 bg-neutral-800 px-1 rounded">
-                        {pillar.tag}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-neutral-400 leading-relaxed font-light mt-1">
-                      {pillar.description}
-                    </p>
-                  </div>
+          <span className="text-xs font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-1">
+            CREATIVE ENGINEERING & AGENTS
+          </span>
+          <h2 className="font-orbitron text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-none mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+            AI & SYSTEMS
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 max-w-xl">
+            {AI_PILLARS.map((pillar, idx) => (
+              <div key={pillar.title} className="space-y-1.5">
+                <div className="flex items-center gap-2 font-mono text-[10px] text-neutral-400 tracking-widest uppercase">
+                  <span>0{idx + 1}</span>
+                  <span>/</span>
+                  <span className="text-neutral-300 font-semibold">{pillar.tag}</span>
                 </div>
-              ))}
-            </div>
+                <h3 className="font-orbitron text-sm sm:text-base font-bold text-white tracking-wide uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                  {pillar.title}
+                </h3>
+                <p className="text-xs sm:text-[13px] text-neutral-300 font-light leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                  {pillar.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* CARD 05: THE MANIFESTO */}
+        {/* 05: MANIFESTO (FULLSCREEN CENTERED TYPOGRAPHY) */}
         <div
           id="experience-card-05"
-          className="absolute z-20 inset-x-4 sm:inset-x-12 lg:inset-x-0 top-1/2 -translate-y-1/2 flex justify-center items-center pointer-events-none"
+          className="absolute z-20 inset-x-6 sm:inset-x-14 md:inset-x-20 top-1/2 -translate-y-1/2 text-center pointer-events-none flex flex-col items-center justify-center"
           style={{
             willChange: 'transform, opacity',
             transform: 'translate3d(0, 35px, 0) scale(0.95)',
@@ -465,40 +379,24 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             visibility: 'hidden',
           }}
         >
-          <div className="relative max-w-2xl w-full p-8 md:p-12 rounded-2xl bg-neutral-950/85 border border-white/20 backdrop-blur-md shadow-[0_25px_70px_rgba(0,0,0,0.95)] text-center">
-            {/* Corner Brackets */}
-            <div className="absolute top-0 left-0 text-white/60">
-              <CornerBracketTL id="card5-tl" />
-            </div>
-            <div className="absolute top-0 right-0 text-white/60">
-              <CornerBracketTR id="card5-tr" />
-            </div>
-            <div className="absolute bottom-0 left-0 text-white/60">
-              <CornerBracketBL id="card5-bl" />
-            </div>
-            <div className="absolute bottom-0 right-0 text-white/60">
-              <CornerBracketBR id="card5-br" />
-            </div>
+          <span className="font-mono text-xs sm:text-sm tracking-[0.35em] uppercase text-neutral-400 block mb-3 drop-shadow">
+            05 // CREATOR PHILOSOPHY
+          </span>
 
-            <span className="font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded bg-white/10 text-white border border-white/10 inline-block mb-4">
-              05 // CREATOR PHILOSOPHY
-            </span>
+          <h2 className="font-orbitron font-extrabold text-3xl sm:text-5xl md:text-7xl lg:text-8xl text-neutral-400 uppercase tracking-tight leading-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+            I DON'T JUST LEARN.
+          </h2>
+          <h1 className="font-orbitron font-black text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-white uppercase tracking-tight leading-none mt-2 mb-6 drop-shadow-[0_8px_40px_rgba(0,0,0,1)]">
+            I BUILD.
+          </h1>
 
-            <h2 className="font-orbitron font-extrabold text-2xl sm:text-4xl md:text-5xl text-neutral-400 uppercase tracking-tight leading-tight">
-              I DON'T JUST LEARN.
-            </h2>
-            <h1 className="font-orbitron font-black text-4xl sm:text-6xl md:text-7xl text-white uppercase tracking-tight mt-1 mb-4">
-              I BUILD.
-            </h1>
+          <p className="text-sm sm:text-lg md:text-xl text-neutral-200 font-light max-w-2xl mx-auto leading-relaxed drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]">
+            “Every project is an experiment in craft, speed, and precision.”
+          </p>
 
-            <p className="text-xs sm:text-sm md:text-base text-neutral-300 font-light max-w-lg mx-auto leading-relaxed">
-              “Every project is an experiment in craft, speed, and precision.”
-            </p>
-
-            <div className="mt-6 inline-flex items-center gap-2 text-xs font-mono text-neutral-400">
-              <span>READY FOR DEPLOYMENT</span>
-              <ArrowDownRight size={14} className="text-white" />
-            </div>
+          <div className="mt-8 inline-flex items-center gap-2 text-xs font-mono text-neutral-400 tracking-widest uppercase drop-shadow">
+            <span>READY FOR DEPLOYMENT</span>
+            <ArrowDownRight size={14} className="text-white" />
           </div>
         </div>
       </div>

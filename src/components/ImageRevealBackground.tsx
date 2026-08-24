@@ -34,20 +34,11 @@ export function ImageRevealBackground() {
 
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Create offscreen canvas for spotlight mask
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
     let animFrameId: number;
 
     const render = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
-
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-      }
 
       // 1. Ease cursor position
       smoothRef.current.x += (mouseRef.current.x - smoothRef.current.x) * 0.1;
@@ -55,32 +46,14 @@ export function ImageRevealBackground() {
 
       // 2. Compute radius
       const radius = Math.round(Math.min(420, Math.max(160, width * 0.16)));
+      const cx = smoothRef.current.x.toFixed(1);
+      const cy = smoothRef.current.y.toFixed(1);
 
-      // 3. Draw radial gradient on canvas
-      if (ctx) {
-        ctx.clearRect(0, 0, width, height);
-
-        const cx = smoothRef.current.x;
-        const cy = smoothRef.current.y;
-
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        grad.addColorStop(0, 'rgba(255,255,255,1)');
-        grad.addColorStop(0.4, 'rgba(255,255,255,1)');
-        grad.addColorStop(0.6, 'rgba(255,255,255,0.75)');
-        grad.addColorStop(0.75, 'rgba(255,255,255,0.4)');
-        grad.addColorStop(0.88, 'rgba(255,255,255,0.12)');
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
-
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        const maskDataUrl = canvas.toDataURL();
-        if (revealRef.current) {
-          revealRef.current.style.maskImage = `url(${maskDataUrl})`;
-          revealRef.current.style.webkitMaskImage = `url(${maskDataUrl})`;
-          revealRef.current.style.maskSize = '100% 100%';
-          revealRef.current.style.webkitMaskSize = '100% 100%';
-        }
+      // 3. Direct hardware-accelerated CSS radial mask gradient
+      if (revealRef.current) {
+        const maskGradient = `radial-gradient(circle ${radius}px at ${cx}px ${cy}px, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, rgba(255,255,255,0.3) 70%, rgba(255,255,255,0) 100%)`;
+        revealRef.current.style.maskImage = maskGradient;
+        revealRef.current.style.webkitMaskImage = maskGradient;
       }
 
       // 4. Parallax grid offset
