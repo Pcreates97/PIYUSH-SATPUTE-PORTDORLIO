@@ -1,132 +1,145 @@
-import React, { useRef, useEffect, useCallback } from 'react';
-import { SKILL_ITEMS, SkillItem } from './skillData';
+import React, { useRef, useEffect } from 'react';
+import { SKILL_ITEMS } from './skillData';
 import { SkillCard } from './SkillCard';
 
 interface SkillOrbitProps {
-  scrollProgress: number; // 0 to 1 master section scroll progress
+  // Speed of the orbital loop (cycles per second, default ~0.035 -> ~28s per full loop)
+  speed?: number;
+  isPaused?: boolean;
 }
 
-export const SkillOrbit: React.FC<SkillOrbitProps> = ({ scrollProgress }) => {
+export const SkillOrbit: React.FC<SkillOrbitProps> = ({ speed = 0.036, isPaused = false }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const animFrameIdRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number | null>(null);
+  const offsetRef = useRef<number>(0);
 
-  // Function to compute and apply 3D orbital positioning for a given item
-  const updateCardPosition = useCallback(
-    (
-      el: HTMLDivElement,
-      skill: SkillItem,
-      progress: number,
-      width: number,
-      height: number
-    ) => {
-      const { startOffset, endOffset, archHeightRatio, spreadOffset, tilt, depthTier } = skill;
-
-      // Compute local timeline progress u in [0, 1]
-      const duration = endOffset - startOffset;
-      const u = (progress - startOffset) / duration;
-
-      if (u < -0.05 || u > 1.05) {
-        // Fully out of bounds
-        el.style.opacity = '0';
-        el.style.visibility = 'hidden';
-        el.style.transform = 'translate3d(-9999px, -9999px, 0)';
-        return;
-      }
-
-      el.style.visibility = 'visible';
-
-      // Clamp u for geometry calculations
-      const clampedU = Math.max(0, Math.min(1, u));
-
-      // 1. Horizontal Trajectory (Left to Right)
-      const offscreenPadding = Math.min(width * 0.18, 180);
-      const startX = -offscreenPadding;
-      const endX = width + offscreenPadding;
-      const spreadX = spreadOffset * width * 0.35;
-      const rawX = startX + (endX - startX) * clampedU + spreadX;
-
-      // 2. Inverted-U Arch Vertical Trajectory
-      // Apex height comfortably above the AI Coder's head
-      const isMobile = width < 768;
-      const apexY = isMobile ? height * 0.14 * archHeightRatio : height * 0.11 * archHeightRatio;
-      const baseY = isMobile ? height * 0.75 : height * 0.72;
-
-      // Symmetric arch formula: peaks at u = 0.5
-      const archFactor = Math.sin(clampedU * Math.PI);
-      const rawY = baseY - (baseY - apexY) * Math.pow(archFactor, 0.88);
-
-      // 3. Opacity, Scale & Depth Blur Transitions
-      let opacity = 1;
-      let blurAmount = 0;
-      let scale = 1;
-
-      // Entrance fade & zoom
-      if (u < 0.15) {
-        const enterRatio = Math.max(0, u / 0.15);
-        opacity = enterRatio;
-        scale = 0.72 + 0.28 * enterRatio;
-        blurAmount = (1 - enterRatio) * 8;
-      }
-      // Exit fade & zoom
-      else if (u > 0.85) {
-        const exitRatio = Math.max(0, (1 - u) / 0.15);
-        opacity = exitRatio;
-        scale = 0.72 + 0.28 * exitRatio;
-        blurAmount = (1 - exitRatio) * 8;
-      } else {
-        // Apex subtle prominence
-        const apexProminence = Math.sin(clampedU * Math.PI);
-        scale = 0.96 + apexProminence * 0.08;
-      }
-
-      // Layer-specific depth tuning
-      let tierScaleMult = 1.0;
-      let zIndex = 20; // Default MID layer
-
-      if (depthTier === 'front') {
-        tierScaleMult = 1.08;
-        zIndex = 30; // Above character
-      } else if (depthTier === 'back') {
-        tierScaleMult = 0.88;
-        opacity *= 0.85;
-        zIndex = 10; // Behind character arms
-      }
-
-      const finalScale = scale * tierScaleMult;
-
-      // Subtle dynamic rotation following the arch curve
-      const tangentTilt = (clampedU - 0.5) * 6 + tilt;
-
-      // Center offset alignment (card dimensions offset)
-      const cardHalfWidth = isMobile ? 65 : 80;
-      const cardHalfHeight = isMobile ? 24 : 30;
-      const targetX = rawX - cardHalfWidth;
-      const targetY = rawY - cardHalfHeight;
-
-      // Hardware-accelerated 3D Transform
-      el.style.transform = `translate3d(${targetX.toFixed(1)}px, ${targetY.toFixed(1)}px, 0px) scale(${finalScale.toFixed(3)}) rotateZ(${tangentTilt.toFixed(2)}deg)`;
-      el.style.opacity = opacity.toFixed(3);
-      el.style.filter = blurAmount > 0.5 ? `blur(${blurAmount.toFixed(1)}px)` : 'none';
-      el.style.zIndex = String(zIndex);
-    },
-    []
-  );
-
-  // Synchronize card positions on every scroll progress update
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const width = container.clientWidth || window.innerWidth;
-    const height = container.clientHeight || window.innerHeight;
+    let width = container.clientWidth || window.innerWidth;
+    let height = container.clientHeight || window.innerHeight;
 
-    cardRefs.current.forEach((el, index) => {
-      if (!el) return;
-      const skill = SKILL_ITEMS[index];
-      if (!skill) return;
-      updateCardPosition(el, skill, scrollProgress, width, height);
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect) {
+          width = entry.contentRect.width || window.innerWidth;
+          height = entry.contentRect.height || window.innerHeight;
+        }
+      }
     });
-  }, [scrollProgress, updateCardPosition]);
+
+    resizeObserver.observe(container);
+
+    const count = SKILL_ITEMS.length;
+
+    // Continuous GPU-accelerated 60/120fps Animation Loop
+    const animate = (currentTime: number) => {
+      if (lastTimeRef.current === null) {
+        lastTimeRef.current = currentTime;
+      }
+      // Clamp delta time to avoid frame spikes during tab switching or backgrounding
+      const rawDelta = (currentTime - lastTimeRef.current) / 1000;
+      const deltaTime = Math.min(rawDelta, 0.05);
+      lastTimeRef.current = currentTime;
+
+      if (!isPaused) {
+        // Continuous smooth advancement wrapped in [0, 1)
+        offsetRef.current = (offsetRef.current + deltaTime * speed) % 1.0;
+      }
+
+      const currentOffset = offsetRef.current;
+      const isMobile = width < 640;
+
+      // Trajectory bounds: smoothly enters from left offscreen, exits right offscreen
+      const offscreenPad = isMobile ? 140 : 180;
+      const startX = -offscreenPad;
+      const endX = width + offscreenPad;
+      const cardHalfWidth = isMobile ? 60 : 75;
+      const cardHalfHeight = isMobile ? 20 : 26;
+
+      // Arch apex & base heights
+      const apexY = isMobile ? height * 0.14 : height * 0.10;
+      const baseY = isMobile ? height * 0.74 : height * 0.72;
+
+      for (let i = 0; i < count; i++) {
+        const el = cardRefs.current[i];
+        if (!el) continue;
+
+        const skill = SKILL_ITEMS[i];
+
+        // Continuous uniform phase for each of the 16 cards around the circle [0, 1)
+        // Adding 1.0 before modulo guarantees non-negative wrapping
+        const u = ((i / count + currentOffset) % 1.0 + 1.0) % 1.0;
+
+        // 1. Horizontal Position (Left -> Right along full track)
+        const rawX = startX + (endX - startX) * u;
+
+        // 2. Inverted-U Arch Path (Symmetric smooth parabolic curve peaking at u = 0.5)
+        const archFactor = Math.sin(u * Math.PI);
+        const rawY = baseY - (baseY - apexY) * Math.pow(archFactor, 0.9);
+
+        // 3. Smooth Opacity & Scale Transitions
+        let opacity = 1;
+        let scale = 1;
+
+        // Smooth fade-in on entrance (u: 0.0 -> 0.10)
+        if (u < 0.10) {
+          const ratio = Math.max(0, u / 0.10);
+          opacity = ratio;
+          scale = 0.80 + 0.20 * ratio;
+        }
+        // Smooth fade-out on exit (u: 0.90 -> 1.00)
+        else if (u > 0.90) {
+          const ratio = Math.max(0, (1 - u) / 0.10);
+          opacity = ratio;
+          scale = 0.80 + 0.20 * ratio;
+        }
+        // Peak arch prominence
+        else {
+          const apexProminence = Math.sin(u * Math.PI);
+          scale = 0.95 + apexProminence * 0.08;
+        }
+
+        // Depth tier adjustments
+        let tierScaleMult = 1.0;
+        let zIndex = 20;
+
+        if (skill.depthTier === 'front') {
+          tierScaleMult = 1.06;
+          zIndex = 30; // In front of character
+        } else if (skill.depthTier === 'back') {
+          tierScaleMult = 0.92;
+          opacity *= 0.85;
+          zIndex = 8; // Behind character
+        }
+
+        const finalScale = scale * tierScaleMult;
+        // Smooth banking angle following the arch curvature
+        const tangentTilt = (u - 0.5) * 16;
+
+        const targetX = rawX - cardHalfWidth;
+        const targetY = rawY - cardHalfHeight;
+
+        el.style.transform = `translate3d(${targetX.toFixed(1)}px, ${targetY.toFixed(1)}px, 0px) scale(${finalScale.toFixed(3)}) rotateZ(${tangentTilt.toFixed(1)}deg)`;
+        el.style.opacity = opacity.toFixed(3);
+        el.style.zIndex = String(zIndex);
+      }
+
+      animFrameIdRef.current = requestAnimationFrame(animate);
+    };
+
+    animFrameIdRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+      resizeObserver.disconnect();
+    };
+  }, [speed, isPaused]);
 
   return (
     <div
@@ -146,3 +159,4 @@ export const SkillOrbit: React.FC<SkillOrbitProps> = ({ scrollProgress }) => {
     </div>
   );
 };
+
