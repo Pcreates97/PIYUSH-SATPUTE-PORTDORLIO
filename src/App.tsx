@@ -17,6 +17,7 @@ import {
 import { Drawers, DrawerType } from './components/Drawers';
 import ExperienceSection from './components/ExperienceSection/ExperienceSection';
 import { AICodingSkills } from './components/AICodingSkills';
+import { LanguageSkillsSection } from './components/LanguageSkills';
 
 export default function App() {
   const [activeDrawer, setActiveDrawer] = useState<DrawerType>(null);
@@ -322,7 +323,10 @@ export default function App() {
       {/* 6. Section 3: AI Coding Skills & Inverted-U Orbital Universe */}
       <AICodingSkills />
 
-      {/* 7. Footer / Outro */}
+      {/* 7. Section 4: Language Skills & Glowing Particles Neural Core */}
+      <LanguageSkillsSection />
+
+      {/* 8. Footer / Outro */}
       <footer
         id="main-footer"
         className="relative z-20 border-t border-neutral-800 bg-neutral-950 py-12 flex flex-col md:flex-row items-center justify-between gap-6"
