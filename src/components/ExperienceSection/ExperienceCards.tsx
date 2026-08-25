@@ -49,12 +49,11 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
 
           if (isActive) {
             el.style.opacity = '1';
-            el.style.transform = 'translateX(4px)';
             const dot = el.querySelector('.chapter-dot') as HTMLElement;
             if (dot) {
               dot.style.backgroundColor = '#ffffff';
               dot.style.boxShadow = '0 0 10px rgba(255,255,255,0.9)';
-              dot.style.transform = 'scale(1.4)';
+              dot.style.transform = 'scale(1.3)';
             }
             const label = el.querySelector('.chapter-label') as HTMLElement;
             if (label) {
@@ -62,8 +61,7 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
               label.style.fontWeight = '600';
             }
           } else {
-            el.style.opacity = isPassed ? '0.45' : '0.25';
-            el.style.transform = 'translateX(0px)';
+            el.style.opacity = isPassed ? '0.6' : '0.3';
             const dot = el.querySelector('.chapter-dot') as HTMLElement;
             if (dot) {
               dot.style.backgroundColor = isPassed ? '#a3a3a3' : '#525252';
@@ -94,16 +92,64 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             paddingTop: 'var(--header-pt)',
           }}
         >
-          {/* Left Section Label */}
-          <div className="flex items-center gap-3">
-            <span className="w-2 h-2 rounded-xs bg-white animate-pulse" />
-            <div className="flex flex-col">
-              <span className="font-orbitron text-xs md:text-sm tracking-[0.25em] font-bold text-white uppercase">
-                02 // THE BUILDER
-              </span>
-              <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase">
-                CINEMATIC SPATIAL TIMELINE
-              </span>
+          {/* Left Section Label & Chapter Track beside THE BUILDER title */}
+          <div className="flex items-center gap-4 md:gap-6 lg:gap-8">
+            {/* Title Block */}
+            <div className="flex items-center gap-3">
+              <span className="w-2 h-2 rounded-xs bg-white animate-pulse" />
+              <div className="flex flex-col">
+                <span className="font-orbitron text-xs md:text-sm tracking-[0.25em] font-bold text-white uppercase">
+                  02 // THE BUILDER
+                </span>
+                <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase">
+                  CINEMATIC SPATIAL TIMELINE
+                </span>
+              </div>
+            </div>
+
+            {/* Chapters 01 to 05 Track - Shifted Upside Beside The Builder Title */}
+            <div
+              id="hud-chapter-timeline"
+              className="hidden sm:flex items-center gap-2 md:gap-3 lg:gap-4 border-l border-neutral-800 pl-4 md:pl-5 lg:pl-6 pointer-events-auto"
+            >
+              {CHAPTERS.map((ch, idx) => {
+                const isInitial = idx === 0;
+                return (
+                  <div
+                    key={ch.id}
+                    ref={(el) => {
+                      chapterDotsRef.current[idx] = el;
+                    }}
+                    className="group flex items-center gap-1.5 cursor-default transition-all duration-300 py-1"
+                    style={{
+                      opacity: isInitial ? 1 : 0.3,
+                    }}
+                  >
+                    <div className="relative flex items-center justify-center">
+                      <span
+                        className="chapter-dot w-1.5 h-1.5 rounded-full transition-all duration-300"
+                        style={{
+                          backgroundColor: isInitial ? '#ffffff' : '#525252',
+                          boxShadow: isInitial ? '0 0 10px rgba(255,255,255,0.9)' : 'none',
+                          transform: isInitial ? 'scale(1.3)' : 'scale(1)',
+                        }}
+                      />
+                    </div>
+                    <span
+                      className="chapter-label font-mono text-[10px] lg:text-[11px] tracking-wider uppercase transition-colors whitespace-nowrap"
+                      style={{
+                        color: isInitial ? '#ffffff' : '#737373',
+                        fontWeight: isInitial ? '600' : '400',
+                      }}
+                    >
+                      <span className="font-semibold">{ch.id}</span>
+                      <span className="hidden xl:inline text-neutral-400 font-normal ml-1">
+                        {ch.label}
+                      </span>
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -126,49 +172,6 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
               </span>
             </div>
           </div>
-        </div>
-
-        {/* 2. Side Chapter Progression Track (Desktop) */}
-        <div
-          id="hud-chapter-timeline"
-          className="hidden md:flex absolute left-6 lg:left-8 top-1/2 -translate-y-1/2 flex-col gap-4 z-20 pointer-events-auto"
-        >
-          {CHAPTERS.map((ch, idx) => {
-            const isInitial = idx === 0;
-            return (
-              <div
-                key={ch.id}
-                ref={(el) => {
-                  chapterDotsRef.current[idx] = el;
-                }}
-                className="group flex items-center gap-3 cursor-default transition-all duration-300"
-                style={{
-                  opacity: isInitial ? 1 : 0.25,
-                  transform: isInitial ? 'translateX(4px)' : 'translateX(0px)',
-                }}
-              >
-                <div className="relative flex items-center justify-center">
-                  <span
-                    className="chapter-dot w-1.5 h-1.5 rounded-full transition-all duration-300"
-                    style={{
-                      backgroundColor: isInitial ? '#ffffff' : '#525252',
-                      boxShadow: isInitial ? '0 0 10px rgba(255,255,255,0.9)' : 'none',
-                      transform: isInitial ? 'scale(1.4)' : 'scale(1)',
-                    }}
-                  />
-                </div>
-                <span
-                  className="chapter-label font-mono text-[10px] tracking-widest uppercase transition-colors"
-                  style={{
-                    color: isInitial ? '#ffffff' : '#737373',
-                    fontWeight: isInitial ? '600' : '400',
-                  }}
-                >
-                  {ch.id} — {ch.label}
-                </span>
-              </div>
-            );
-          })}
         </div>
 
         {/* 3. Bottom HUD Bar */}
@@ -201,9 +204,9 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           className="absolute z-20 left-6 sm:left-14 md:left-20 lg:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
           style={{
             willChange: 'transform, opacity',
-            transform: 'translate3d(0, 30px, 0) scale(0.98)',
-            opacity: 0,
-            visibility: 'hidden',
+            transform: 'translate3d(0, 0px, 0) scale(1)',
+            opacity: 1,
+            visibility: 'visible',
           }}
         >
           <div className="flex items-center gap-2 mb-3">

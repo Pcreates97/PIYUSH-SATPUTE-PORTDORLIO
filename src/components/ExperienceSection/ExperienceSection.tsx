@@ -67,16 +67,16 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
         },
       });
 
-      // Section 01: IDENTITY (Left-aligned, 0.07 to 0.25)
+      // Section 01: IDENTITY (Left-aligned, visible on entry 0.00 to 0.22)
       tl.fromTo(
         '#experience-card-01',
-        { autoAlpha: 0, x: -35, scale: 0.98, pointerEvents: 'none' },
-        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.07
+        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto' },
+        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', duration: 0.01 },
+        0
       ).to(
         '#experience-card-01',
         { autoAlpha: 0, x: -25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.22
+        0.20
       );
 
       // Section 02: JOURNEY (Right-aligned, 0.26 to 0.45)
