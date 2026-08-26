@@ -112,22 +112,22 @@ export const LanguageSkillsSection: React.FC = () => {
   return (
     <section
       id="section-language-skills"
-      className="relative w-full min-h-screen bg-black text-white py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-neutral-900 overflow-hidden select-none"
+      className="relative w-full min-h-screen bg-black text-white py-20 sm:py-28 px-4 sm:px-6 lg:px-12 border-t border-neutral-900/80 overflow-hidden select-none"
       aria-label="Section 4: Programming Language Mastery"
     >
       {/* 1. Background Ambient Radial Grid */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(30,58,138,0.15)_0%,rgba(0,0,0,0.95)_70%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(30,58,138,0.18)_0%,rgba(0,0,0,0.95)_75%)]" />
       <div
         className="pointer-events-none absolute inset-0 opacity-15"
         style={{
           backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
+          backgroundSize: '48px 48px',
         }}
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center">
+      <div className="relative z-10 w-full max-w-[1520px] mx-auto flex flex-col items-center">
         {/* 2. Section Header & Metrics */}
-        <div className="w-full flex flex-col items-center text-center mb-12 sm:mb-16">
+        <div className="w-full flex flex-col items-center text-center mb-10 sm:mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-neutral-800 bg-neutral-950/80 backdrop-blur-md mb-4 text-xs font-mono tracking-widest text-neutral-300">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             <span>04 // LANGUAGE MASTERY & SYNAPSE CORE</span>
@@ -182,13 +182,13 @@ export const LanguageSkillsSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 3. Main Interactive Stage (Sphere in Center with Cards and Connecting Lines) */}
+        {/* 3. Main Open Interactive Stage (Sphere in Center with Cards and Connecting Lines) */}
         <div
           ref={containerRef}
-          className="relative w-full min-h-[640px] lg:min-h-[720px] rounded-2xl border border-white/10 bg-neutral-950/50 backdrop-blur-xl p-4 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden"
+          className="relative w-full min-h-[620px] lg:min-h-[700px] flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-12 py-4"
         >
           {/* Dynamic Laser Connecting Lines (Desktop / Large View) */}
-          <div className="hidden lg:block absolute inset-0">
+          <div className="hidden lg:block absolute inset-0 pointer-events-none">
             <ConnectionLines
               cardCoords={cardCoords}
               centerCoord={centerCoord}
@@ -201,7 +201,7 @@ export const LanguageSkillsSection: React.FC = () => {
           </div>
 
           {/* Left Wing Language Cards */}
-          <div className="w-full lg:w-[320px] flex flex-col gap-3.5 z-20">
+          <div className="w-full lg:w-[340px] xl:w-[360px] flex flex-col gap-3.5 z-20">
             {leftWingLanguages.map((lang) => {
               const isFilteredOut =
                 selectedCategory !== 'ALL' && lang.category !== selectedCategory;
@@ -233,16 +233,16 @@ export const LanguageSkillsSection: React.FC = () => {
           {/* Central Glowing Particles Sphere Container */}
           <div
             ref={sphereRef}
-            className="relative flex-1 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] w-full max-w-[480px] z-20"
+            className="relative flex-1 flex flex-col items-center justify-center min-h-[360px] sm:min-h-[440px] lg:min-h-[520px] w-full max-w-[540px] z-20"
           >
             {/* Concentric Ambient Coordinate Rings */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] rounded-full border border-white/5 animate-[spin_60s_linear_infinite]" />
-              <div className="absolute w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] rounded-full border border-dashed border-cyan-500/15 animate-[spin_40s_linear_infinite_reverse]" />
+              <div className="w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] rounded-full border border-white/5 animate-[spin_60s_linear_infinite]" />
+              <div className="absolute w-[240px] h-[240px] sm:w-[300px] sm:h-[300px] rounded-full border border-dashed border-cyan-500/15 animate-[spin_40s_linear_infinite_reverse]" />
             </div>
 
             {/* Glowing Particles Component */}
-            <div className="relative w-full h-[320px] sm:h-[400px] lg:h-[460px] flex items-center justify-center">
+            <div className="relative w-full h-[340px] sm:h-[420px] lg:h-[480px] flex items-center justify-center">
               <GlowingParticles
                 color={activeLanguage.color}
                 hot="#FFFFFF"
@@ -259,7 +259,7 @@ export const LanguageSkillsSection: React.FC = () => {
               />
 
               {/* Sphere Core Focal Overlay Pill */}
-              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-full border border-white/15 bg-black/80 backdrop-blur-md text-[11px] font-mono text-neutral-300 pointer-events-none">
+              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/15 bg-black/80 backdrop-blur-md text-[11px] font-mono text-neutral-300 pointer-events-none shadow-lg">
                 <span
                   className="w-2 h-2 rounded-full animate-ping"
                   style={{ backgroundColor: activeLanguage.color }}
@@ -274,7 +274,7 @@ export const LanguageSkillsSection: React.FC = () => {
           </div>
 
           {/* Right Wing Language Cards */}
-          <div className="w-full lg:w-[320px] flex flex-col gap-3.5 z-20">
+          <div className="w-full lg:w-[340px] xl:w-[360px] flex flex-col gap-3.5 z-20">
             {rightWingLanguages.map((lang) => {
               const isFilteredOut =
                 selectedCategory !== 'ALL' && lang.category !== selectedCategory;
@@ -304,8 +304,8 @@ export const LanguageSkillsSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 4. Active Language Architectural Deep-Dive HUD */}
-        <div className="w-full mt-6 rounded-xl border border-white/10 bg-neutral-950/80 backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        {/* 4. Active Language Architectural Deep-Dive HUD (Open, seamless bar) */}
+        <div className="w-full mt-8 border-t border-b border-white/10 bg-gradient-to-r from-transparent via-neutral-900/40 to-transparent backdrop-blur-sm py-6 px-4 sm:px-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center p-2.5 shrink-0 border"

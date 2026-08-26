@@ -18,6 +18,8 @@ import { Drawers, DrawerType } from './components/Drawers';
 import ExperienceSection from './components/ExperienceSection/ExperienceSection';
 import { AICodingSkills } from './components/AICodingSkills';
 import { LanguageSkillsSection } from './components/LanguageSkills';
+import { Footer16 } from './components/Footer16';
+import { GradualBlur } from './components/GradualBlur';
 
 export default function App() {
   const [activeDrawer, setActiveDrawer] = useState<DrawerType>(null);
@@ -37,6 +39,17 @@ export default function App() {
     >
       {/* 1. Desktop Interactive Image Reveal Background with Spotlight & Parallax Grid */}
       <ImageRevealBackground />
+
+      {/* Bottom Fixed Gradual Blur for smooth downside page transition */}
+      <GradualBlur 
+        target="page" 
+        position="bottom" 
+        height="5rem" 
+        strength={2} 
+        divCount={6} 
+        curve="ease-out" 
+        zIndex={25} 
+      />
 
       {/* 2. Toast Notification */}
       {toastMessage && (
@@ -315,6 +328,16 @@ export default function App() {
             <span className="animate-bounce">↓</span>
           </button>
         </div>
+
+        {/* Gradual progressive blur at hero bottom leading smoothly into Experience Section */}
+        <GradualBlur 
+          position="bottom" 
+          height="5.5rem" 
+          strength={2} 
+          curve="bezier" 
+          divCount={6} 
+          zIndex={5} 
+        />
       </section>
 
       {/* 5. Section 2: Cinematic Scroll-Scrubbed Experience */}
@@ -326,52 +349,8 @@ export default function App() {
       {/* 7. Section 4: Language Skills & Glowing Particles Neural Core */}
       <LanguageSkillsSection />
 
-      {/* 8. Footer / Outro */}
-      <footer
-        id="main-footer"
-        className="relative z-20 border-t border-neutral-800 bg-neutral-950 py-12 flex flex-col md:flex-row items-center justify-between gap-6"
-        style={{ paddingInline: 'var(--pad-x)' }}
-      >
-        <div className="flex flex-col items-center md:items-start gap-1">
-          <div className="font-orbitron font-bold text-white text-lg tracking-wider">
-            PIYUSH˚
-          </div>
-          <p className="text-xs text-neutral-400 font-light">
-            Creative Developer & AI Systems Architect. Available for select collaborations.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-6 text-xs font-mono text-neutral-400">
-          <button
-            onClick={() => setActiveDrawer('projects')}
-            className="hover:text-white transition-colors cursor-pointer uppercase"
-          >
-            Projects
-          </button>
-          <button
-            onClick={() => setActiveDrawer('expertise')}
-            className="hover:text-white transition-colors cursor-pointer uppercase"
-          >
-            Expertise
-          </button>
-          <button
-            onClick={() => setActiveDrawer('about')}
-            className="hover:text-white transition-colors cursor-pointer uppercase"
-          >
-            About
-          </button>
-          <button
-            onClick={() => setActiveDrawer('contact')}
-            className="hover:text-white transition-colors cursor-pointer uppercase"
-          >
-            Contact
-          </button>
-        </div>
-
-        <div className="text-[11px] font-mono text-neutral-500">
-          © {new Date().getFullYear()} PIYUSH. ALL RIGHTS RESERVED.
-        </div>
-      </footer>
+      {/* 8. Footer (Footer-16 Architecture with Watermark Typography & Ambient Assets) */}
+      <Footer16 onOpenDrawer={setActiveDrawer} />
 
       {/* 7. Side Drawers (PROJECTS, EXPERTISE, ABOUT, CONTACT) */}
       <Drawers
