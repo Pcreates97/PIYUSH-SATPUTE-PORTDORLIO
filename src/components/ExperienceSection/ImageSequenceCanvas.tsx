@@ -36,14 +36,6 @@ export const ImageSequenceCanvas = forwardRef<ImageSequenceCanvasHandle, ImageSe
 
       const safeIndex = Math.max(0, Math.min(totalFrames - 1, Math.round(frameIndex)));
 
-      // Update fallback image source immediately
-      if (fallbackImgRef.current) {
-        const frameUrl = getFrameUrl(safeIndex);
-        if (fallbackImgRef.current.src !== frameUrl && !fallbackImgRef.current.src.endsWith(frameUrl)) {
-          fallbackImgRef.current.src = frameUrl;
-        }
-      }
-
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const displayWidth = container.clientWidth || window.innerWidth;
       const displayHeight = container.clientHeight || window.innerHeight;
@@ -97,13 +89,14 @@ export const ImageSequenceCanvas = forwardRef<ImageSequenceCanvasHandle, ImageSe
         offsetY = (targetHeight - drawHeight) * 0.5;
       } else {
         drawWidth = targetHeight * imgAspect;
+        offsetY = 0;
         offsetX = (targetWidth - drawWidth) * 0.5;
       }
 
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'medium';
       ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-    }, [getFrameUrl, totalFrames]);
+    }, [totalFrames]);
 
     // Request-Animation-Frame throttled render
     const scheduleRender = useCallback((frameIndex: number) => {
@@ -202,14 +195,15 @@ export const ImageSequenceCanvas = forwardRef<ImageSequenceCanvasHandle, ImageSe
         ref={containerRef}
         className="absolute inset-0 w-full h-full overflow-hidden bg-black select-none"
       >
-        {/* Instant Backdrop Image - Guarantees visual rendering at 100% times */}
+        {/* Instant Backdrop Image - Guarantees visual rendering at 100% times without broken placeholder boxes */}
         <img
           id="image-sequence-backdrop-fallback"
           ref={fallbackImgRef}
           src={getFrameUrl(0)}
-          alt="Sequence backdrop"
+          alt=""
           className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none z-0"
           loading="eager"
+          decoding="async"
         />
 
         {/* High-Performance Canvas */}

@@ -37,7 +37,7 @@ export const SkillCard = forwardRef<HTMLDivElement, SkillCardProps>(
             {!hasError ? (
               <img
                 src={skill.asset}
-                alt={skill.name}
+                alt=""
                 className="w-full h-full object-contain rounded select-none pointer-events-none"
                 loading="eager"
                 decoding="async"

@@ -317,8 +317,10 @@ export const LanguageSkillsSection: React.FC = () => {
             >
               <img
                 src={activeLanguage.icon}
-                alt={activeLanguage.name}
+                alt=""
                 className="w-full h-full object-contain"
+                loading="eager"
+                decoding="async"
               />
             </div>
 

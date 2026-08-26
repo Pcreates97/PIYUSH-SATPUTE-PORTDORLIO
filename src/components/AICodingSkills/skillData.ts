@@ -1,3 +1,20 @@
+import charImg from '../../assets/skills/ai-coder-character.png';
+import githubImg from '../../assets/skills/github.jpg';
+import vercelImg from '../../assets/skills/vercel.jpg';
+import vscodeImg from '../../assets/skills/vscode.jpg';
+import supabaseImg from '../../assets/skills/supabase.jpg';
+import firebaseImg from '../../assets/skills/firebase.jpg';
+import claudeImg from '../../assets/skills/claude.jpg';
+import chatgptImg from '../../assets/skills/chatgpt.jpg';
+import codexImg from '../../assets/skills/codex.png';
+import geminiImg from '../../assets/skills/gemini.jpg';
+import replitImg from '../../assets/skills/replit.jpg';
+import lovableImg from '../../assets/skills/lovable.jpg';
+import googleAntigravityImg from '../../assets/skills/google-antigravity.jpg';
+import clawdImg from '../../assets/skills/clawd.jpg';
+import cursorImg from '../../assets/skills/cursor.jpg';
+import brandStudioImg from '../../assets/skills/brand-studio.jpg';
+
 export interface SkillItem {
   id: string;
   name: string;
@@ -15,7 +32,7 @@ export interface SkillItem {
   tilt: number;
 }
 
-export const CHARACTER_IMAGE = '/skills/ai-coder-character.png';
+export const CHARACTER_IMAGE = charImg;
 
 export const SKILL_ITEMS: SkillItem[] = [
   // 1. Developer Platforms & Deployment (Phase 1)
@@ -23,7 +40,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'github',
     name: 'GitHub',
     category: 'DEVELOPER PLATFORM',
-    asset: '/skills/github.jpg',
+    asset: githubImg,
     startOffset: 0.12,
     endOffset: 0.44,
     depthTier: 'mid',
@@ -35,7 +52,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'vercel',
     name: 'Vercel',
     category: 'DEPLOYMENT & EDGE',
-    asset: '/skills/vercel.jpg',
+    asset: vercelImg,
     startOffset: 0.16,
     endOffset: 0.48,
     depthTier: 'front',
@@ -47,7 +64,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'vscode',
     name: 'VS Code',
     category: 'IDE & WORKSPACE',
-    asset: '/skills/vscode.jpg',
+    asset: vscodeImg,
     startOffset: 0.20,
     endOffset: 0.52,
     depthTier: 'mid',
@@ -59,7 +76,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'supabase',
     name: 'Supabase',
     category: 'DATABASE & REALTIME',
-    asset: '/skills/supabase.jpg',
+    asset: supabaseImg,
     startOffset: 0.24,
     endOffset: 0.56,
     depthTier: 'front',
@@ -71,7 +88,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'firebase',
     name: 'Firebase',
     category: 'BACKEND & AUTH',
-    asset: '/skills/firebase.jpg',
+    asset: firebaseImg,
     startOffset: 0.28,
     endOffset: 0.60,
     depthTier: 'back',
@@ -85,7 +102,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'claude',
     name: 'Claude',
     category: 'REASONING & SYNTHESIS',
-    asset: '/skills/claude.jpg',
+    asset: claudeImg,
     startOffset: 0.32,
     endOffset: 0.64,
     depthTier: 'front',
@@ -97,7 +114,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'chatgpt',
     name: 'ChatGPT',
     category: 'LLM INTELLIGENCE',
-    asset: '/skills/chatgpt.jpg',
+    asset: chatgptImg,
     startOffset: 0.36,
     endOffset: 0.68,
     depthTier: 'mid',
@@ -109,7 +126,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'codex',
     name: 'OpenAI Codex',
     category: 'NEURAL CODE ENGINE',
-    asset: '/skills/codex.png',
+    asset: codexImg,
     startOffset: 0.40,
     endOffset: 0.72,
     depthTier: 'front',
@@ -121,7 +138,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'gemini',
     name: 'Google Gemini',
     category: 'MULTIMODAL AI',
-    asset: '/skills/gemini.jpg',
+    asset: geminiImg,
     startOffset: 0.44,
     endOffset: 0.76,
     depthTier: 'mid',
@@ -135,7 +152,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'replit',
     name: 'Replit',
     category: 'COLLABORATIVE RUNTIME',
-    asset: '/skills/replit.jpg',
+    asset: replitImg,
     startOffset: 0.48,
     endOffset: 0.80,
     depthTier: 'back',
@@ -147,7 +164,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'lovable',
     name: 'Lovable',
     category: 'FULLSTACK GENERATION',
-    asset: '/skills/lovable.jpg',
+    asset: lovableImg,
     startOffset: 0.52,
     endOffset: 0.84,
     depthTier: 'front',
@@ -159,7 +176,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'google-antigravity',
     name: 'Google Antigravity',
     category: 'AGENTIC WORKFLOWS',
-    asset: '/skills/google-antigravity.jpg',
+    asset: googleAntigravityImg,
     startOffset: 0.56,
     endOffset: 0.88,
     depthTier: 'front',
@@ -171,7 +188,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'clawd',
     name: 'Claude Code',
     category: 'AUTONOMOUS AGENT',
-    asset: '/skills/clawd.jpg',
+    asset: clawdImg,
     startOffset: 0.60,
     endOffset: 0.90,
     depthTier: 'mid',
@@ -183,7 +200,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'cursor',
     name: 'Cursor AI',
     category: 'AI-NATIVE EDITOR',
-    asset: '/skills/cursor.jpg',
+    asset: cursorImg,
     startOffset: 0.64,
     endOffset: 0.92,
     depthTier: 'front',
@@ -195,7 +212,7 @@ export const SKILL_ITEMS: SkillItem[] = [
     id: 'brand-studio',
     name: 'Design Systems',
     category: 'CREATIVE UI & BRAND',
-    asset: '/skills/brand-studio.jpg',
+    asset: brandStudioImg,
     startOffset: 0.68,
     endOffset: 0.94,
     depthTier: 'back',

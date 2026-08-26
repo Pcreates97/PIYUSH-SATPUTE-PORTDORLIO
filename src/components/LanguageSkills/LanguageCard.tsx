@@ -54,15 +54,10 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({
         >
           <img
             src={language.icon}
-            alt={`${language.name} logo`}
+            alt=""
             className="w-full h-full object-contain filter drop-shadow"
-            loading="lazy"
+            loading="eager"
             decoding="async"
-            onError={(e) => {
-              // Fallback text if image fails
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
           />
         </div>
 

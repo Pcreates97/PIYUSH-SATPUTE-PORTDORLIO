@@ -171,7 +171,7 @@ export const AICodingSkills: React.FC = () => {
             id="ai-coder-character-image"
             ref={characterRef}
             src={CHARACTER_IMAGE}
-            alt="Futuristic AI Coder Character"
+            alt=""
             className="h-[68vh] sm:h-[75vh] md:h-[82vh] max-h-[900px] w-auto object-contain select-none pointer-events-none drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)] will-change-[opacity,transform]"
             style={{
               opacity: 1,
