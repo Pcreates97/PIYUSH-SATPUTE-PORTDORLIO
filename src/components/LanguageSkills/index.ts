@@ -1,3 +1,3 @@
 export { LanguageSkillsSection } from './LanguageSkillsSection';
-export { CINEMATIC_LANGUAGES } from './languageData';
-export type { CinematicLanguage } from './languageData';
+export { PROGRAMMING_LANGUAGES } from './languageData';
+export type { ProgrammingLanguage } from './languageData';

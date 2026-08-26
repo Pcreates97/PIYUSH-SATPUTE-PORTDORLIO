@@ -1,887 +1,373 @@
-import React, { useRef, useEffect } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import GlowingParticles from '../originkit/ui/glowing-particles';
-import { CINEMATIC_LANGUAGES } from './languageData';
+import { PROGRAMMING_LANGUAGES, ProgrammingLanguage } from './languageData';
+import { LanguageCard } from './LanguageCard';
+import { ConnectionLines, CardCoord } from './ConnectionLines';
+import { Terminal, Cpu, Layers, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
+const CATEGORIES = ['ALL', 'Systems', 'AI & Data', 'Web & Fullstack', 'Backend & Cloud'] as const;
 
 export const LanguageSkillsSection: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
-  const stageRef = useRef<HTMLDivElement | null>(null);
-  const cameraRigRef = useRef<HTMLDivElement | null>(null);
-  const sphereContainerRef = useRef<HTMLDivElement | null>(null);
-  const introBlockRef = useRef<HTMLDivElement | null>(null);
-  const outroBlockRef = useRef<HTMLDivElement | null>(null);
-  const svgConstellationRef = useRef<SVGSVGElement | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [activeLangId, setActiveLangId] = useState<string>('typescript');
+  const [hoveredLangId, setHoveredLangId] = useState<string | null>(null);
 
-  // Language DOM element refs
-  const langItemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const langLogoRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const pathRefs = useRef<{ [key: string]: SVGPathElement | null }>({});
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const sphereRef = useRef<HTMLDivElement | null>(null);
+  const cardElementRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const [dimensions, setDimensions] = useState<{ width: number; height: number }>({
+    width: 1200,
+    height: 800,
+  });
+  const [cardCoords, setCardCoords] = useState<Record<string, CardCoord>>({});
+  const [centerCoord, setCenterCoord] = useState<{ x: number; y: number } | null>(null);
+
+  // Active language object
+  const activeLanguage = useMemo(() => {
+    const targetId = hoveredLangId || activeLangId;
+    return PROGRAMMING_LANGUAGES.find((l) => l.id === targetId) || PROGRAMMING_LANGUAGES[0];
+  }, [activeLangId, hoveredLangId]);
+
+  // Filtered languages
+  const filteredLanguages = useMemo(() => {
+    if (selectedCategory === 'ALL') return PROGRAMMING_LANGUAGES;
+    return PROGRAMMING_LANGUAGES.filter((l) => l.category === selectedCategory);
+  }, [selectedCategory]);
+
+  // Split into left and right wings
+  const leftWingLanguages = useMemo(() => {
+    return PROGRAMMING_LANGUAGES.filter((l) => l.side === 'left');
+  }, []);
+
+  const rightWingLanguages = useMemo(() => {
+    return PROGRAMMING_LANGUAGES.filter((l) => l.side === 'right');
+  }, []);
+
+  // Update dynamic SVG connection coordinates
+  const updateCoordinates = useCallback(() => {
+    const container = containerRef.current;
+    const sphere = sphereRef.current;
+    if (!container || !sphere) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const sphereRect = sphere.getBoundingClientRect();
+
+    setDimensions({
+      width: containerRect.width,
+      height: containerRect.height,
+    });
+
+    // Center of Glowing Particle Sphere
+    const centerX = sphereRect.left - containerRect.left + sphereRect.width / 2;
+    const centerY = sphereRect.top - containerRect.top + sphereRect.height / 2;
+    setCenterCoord({ x: centerX, y: centerY });
+
+    // Calculate anchor coordinate for each card
+    const newCoords: Record<string, CardCoord> = {};
+
+    PROGRAMMING_LANGUAGES.forEach((lang) => {
+      const cardEl = cardElementRefs.current[lang.id];
+      if (cardEl) {
+        const cardRect = cardEl.getBoundingClientRect();
+        // Left side cards connect on their right edge; Right side cards connect on their left edge
+        const anchorX =
+          lang.side === 'left'
+            ? cardRect.right - containerRect.left
+            : cardRect.left - containerRect.left;
+        const anchorY = cardRect.top - containerRect.top + cardRect.height / 2;
+
+        newCoords[lang.id] = {
+          id: lang.id,
+          x: anchorX,
+          y: anchorY,
+        };
+      }
+    });
+
+    setCardCoords(newCoords);
+  }, []);
 
   useEffect(() => {
-    const section = sectionRef.current;
-    const stage = stageRef.current;
-    const cameraRig = cameraRigRef.current;
-    const sphere = sphereContainerRef.current;
-    const intro = introBlockRef.current;
-    const outro = outroBlockRef.current;
+    updateCoordinates();
 
-    if (!section || !stage || !cameraRig || !sphere || !intro || !outro) return;
+    const ro = new ResizeObserver(() => {
+      updateCoordinates();
+    });
 
-    // Check for prefers-reduced-motion
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mediaQuery.matches) {
-      // Show static elegant layout for reduced motion
-      gsap.set(intro, { opacity: 1 });
-      gsap.set(sphere, { opacity: 1, scale: 1 });
-      Object.values(langItemRefs.current).forEach((el) => {
-        if (el) gsap.set(el, { opacity: 1, x: 0, y: 0, scale: 1 });
-      });
-      return;
+    if (containerRef.current) {
+      ro.observe(containerRef.current);
     }
 
-    const ctx = gsap.context(() => {
-      // Master ScrollTrigger Timeline: 600vh of scrub-controlled spatial choreography
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: 'top top',
-          end: 'bottom bottom',
-          pin: stage,
-          scrub: 1,
-          anticipatePin: 1,
-        },
-      });
-
-      // Initial Scene State (Deep Space)
-      gsap.set(cameraRig, {
-        transformPerspective: 1400,
-        transformStyle: 'preserve-3d',
-        translateZ: 0,
-        rotateX: 0,
-        rotateY: 0,
-      });
-
-      gsap.set(sphere, {
-        opacity: 0,
-        scale: 0.3,
-        z: -200,
-      });
-
-      gsap.set(outro, {
-        opacity: 0,
-        scale: 0.9,
-        y: 60,
-        filter: 'blur(10px)',
-      });
-
-      // Initialize all language items into deep space
-      CINEMATIC_LANGUAGES.forEach((lang) => {
-        const itemEl = langItemRefs.current[lang.id];
-        const logoEl = langLogoRefs.current[lang.id];
-        const pathEl = pathRefs.current[lang.id];
-
-        if (itemEl) {
-          gsap.set(itemEl, {
-            opacity: 0,
-            scale: 0.7,
-            filter: 'blur(14px)',
-            transformStyle: 'preserve-3d',
-          });
-        }
-        if (logoEl) {
-          gsap.set(logoEl, {
-            opacity: 0,
-            scale: 0.6,
-            filter: 'blur(10px)',
-            transformStyle: 'preserve-3d',
-          });
-        }
-        if (pathEl) {
-          const length = pathEl.getTotalLength ? pathEl.getTotalLength() : 600;
-          gsap.set(pathEl, {
-            strokeDasharray: length,
-            strokeDashoffset: length,
-            opacity: 0,
-          });
-        }
-      });
-
-      // =========================================================================
-      // ACT 1: Prologue & Editorial Statement (0.00 -> 0.16)
-      // =========================================================================
-      // Intro enters sharp, then sinks into the deep void as user begins scrolling
-      tl.fromTo(
-        intro,
-        { opacity: 1, scale: 1, z: 0, filter: 'blur(0px)' },
-        {
-          opacity: 0,
-          scale: 0.8,
-          z: -350,
-          y: -40,
-          filter: 'blur(14px)',
-          duration: 0.16,
-          ease: 'power2.inOut',
-        },
-        0.02
-      );
-
-      // =========================================================================
-      // ACT 2: Digital Sphere Core Awakens & Camera Approaches (0.12 -> 0.28)
-      // =========================================================================
-      tl.to(
-        sphere,
-        {
-          opacity: 1,
-          scale: 1,
-          z: 0,
-          duration: 0.16,
-          ease: 'power2.out',
-        },
-        0.12
-      );
-
-      // Camera gently pushes in toward the awakening core
-      tl.to(
-        cameraRig,
-        {
-          translateZ: 140,
-          rotateX: 2,
-          duration: 0.20,
-          ease: 'power1.inOut',
-        },
-        0.14
-      );
-
-      // =========================================================================
-      // ACT 3: First Language — JAVASCRIPT Emerges from Left Depth (0.26 -> 0.44)
-      // =========================================================================
-      const jsItem = langItemRefs.current['javascript'];
-      const jsLogo = langLogoRefs.current['javascript'];
-      const jsPath = pathRefs.current['javascript'];
-
-      if (jsItem && jsLogo) {
-        // Enters from far bottom-left deep plane
-        tl.fromTo(
-          jsItem,
-          { opacity: 0, x: -550, y: 180, z: -300, scale: 0.7, filter: 'blur(16px)' },
-          {
-            opacity: 1,
-            x: -320,
-            y: 90,
-            z: 80,
-            scale: 1,
-            filter: 'blur(0px)',
-            duration: 0.14,
-            ease: 'power2.out',
-          },
-          0.26
-        );
-
-        tl.fromTo(
-          jsLogo,
-          { opacity: 0, x: -440, y: 220, z: -250, rotateY: 35, filter: 'blur(12px)' },
-          {
-            opacity: 1,
-            x: -240,
-            y: 150,
-            z: 110,
-            rotateY: 10,
-            filter: 'blur(0px)',
-            duration: 0.14,
-            ease: 'power2.out',
-          },
-          0.28
-        );
-
-        if (jsPath) {
-          tl.to(
-            jsPath,
-            { strokeDashoffset: 0, opacity: 0.6, duration: 0.12, ease: 'power1.inOut' },
-            0.30
-          );
-        }
-      }
-
-      // Camera shifts angle to focus on the left emergence
-      tl.to(
-        cameraRig,
-        {
-          rotateY: 4,
-          rotateX: -1,
-          translateZ: 90,
-          duration: 0.16,
-          ease: 'power1.inOut',
-        },
-        0.30
-      );
-
-      // =========================================================================
-      // ACT 4: PYTHON (Top) & TYPESCRIPT (Right) Dual Convergence (0.42 -> 0.58)
-      // =========================================================================
-      const pyItem = langItemRefs.current['python'];
-      const pyLogo = langLogoRefs.current['python'];
-      const pyPath = pathRefs.current['python'];
-
-      const tsItem = langItemRefs.current['typescript'];
-      const tsLogo = langLogoRefs.current['typescript'];
-      const tsPath = pathRefs.current['typescript'];
-
-      // Python swoops down from top space
-      if (pyItem && pyLogo) {
-        tl.fromTo(
-          pyItem,
-          { opacity: 0, x: -60, y: -420, z: -320, scale: 0.65, filter: 'blur(14px)' },
-          {
-            opacity: 1,
-            x: -20,
-            y: -220,
-            z: -20,
-            scale: 1,
-            filter: 'blur(0px)',
-            duration: 0.14,
-            ease: 'power2.out',
-          },
-          0.42
-        );
-
-        tl.fromTo(
-          pyLogo,
-          { opacity: 0, x: -60, y: -480, z: -320, rotateX: 30, filter: 'blur(12px)' },
-          {
-            opacity: 1,
-            x: -20,
-            y: -290,
-            z: 0,
-            rotateX: 6,
-            filter: 'blur(0px)',
-            duration: 0.14,
-            ease: 'power2.out',
-          },
-          0.44
-        );
-
-        if (pyPath) {
-          tl.to(
-            pyPath,
-            { strokeDashoffset: 0, opacity: 0.6, duration: 0.12, ease: 'power1.inOut' },
-            0.45
-          );
-        }
-      }
-
-      // TypeScript glides in from upper right
-      if (tsItem && tsLogo) {
-        tl.fromTo(
-          tsItem,
-          { opacity: 0, x: 580, y: -140, z: -280, scale: 0.7, filter: 'blur(14px)' },
-          {
-            opacity: 1,
-            x: 320,
-            y: -90,
-            z: 90,
-            scale: 1,
-            filter: 'blur(0px)',
-            duration: 0.14,
-            ease: 'power2.out',
-          },
-          0.46
-        );
-
-        tl.fromTo(
-          tsLogo,
-          { opacity: 0, x: 480, y: -80, z: -200, rotateY: -30, filter: 'blur(12px)' },
-          {
-            opacity: 1,
-            x: 230,
-            y: -30,
-            z: 110,
-            rotateY: -8,
-            filter: 'blur(0px)',
-            duration: 0.14,
-            ease: 'power2.out',
-          },
-          0.48
-        );
-
-        if (tsPath) {
-          tl.to(
-            tsPath,
-            { strokeDashoffset: 0, opacity: 0.6, duration: 0.12, ease: 'power1.inOut' },
-            0.49
-          );
-        }
-      }
-
-      // Camera pivots smoothly across the horizon
-      tl.to(
-        cameraRig,
-        {
-          rotateY: -3,
-          rotateX: 2,
-          translateZ: 70,
-          duration: 0.18,
-          ease: 'power1.inOut',
-        },
-        0.46
-      );
-
-      // =========================================================================
-      // ACT 5: HTML, CSS, and SQL Induction (0.56 -> 0.74)
-      // =========================================================================
-      const htmlItem = langItemRefs.current['html'];
-      const htmlLogo = langLogoRefs.current['html'];
-      const htmlPath = pathRefs.current['html'];
-
-      const cssItem = langItemRefs.current['css'];
-      const cssLogo = langLogoRefs.current['css'];
-      const cssPath = pathRefs.current['css'];
-
-      const sqlItem = langItemRefs.current['sql'];
-      const sqlLogo = langLogoRefs.current['sql'];
-      const sqlPath = pathRefs.current['sql'];
-
-      // HTML from mid-left
-      if (htmlItem && htmlLogo) {
-        tl.fromTo(
-          htmlItem,
-          { opacity: 0, x: -520, y: -80, z: -200, scale: 0.75, filter: 'blur(12px)' },
-          {
-            opacity: 1,
-            x: -360,
-            y: -70,
-            z: 30,
-            scale: 0.95,
-            filter: 'blur(0px)',
-            duration: 0.13,
-            ease: 'power2.out',
-          },
-          0.56
-        );
-
-        tl.fromTo(
-          htmlLogo,
-          { opacity: 0, x: -420, y: -20, z: -150, rotateY: 25, filter: 'blur(10px)' },
-          {
-            opacity: 1,
-            x: -280,
-            y: -20,
-            z: 60,
-            rotateY: 8,
-            filter: 'blur(0px)',
-            duration: 0.13,
-            ease: 'power2.out',
-          },
-          0.58
-        );
-
-        if (htmlPath) {
-          tl.to(
-            htmlPath,
-            { strokeDashoffset: 0, opacity: 0.5, duration: 0.10, ease: 'power1.inOut' },
-            0.59
-          );
-        }
-      }
-
-      // CSS from mid-right
-      if (cssItem && cssLogo) {
-        tl.fromTo(
-          cssItem,
-          { opacity: 0, x: 500, y: 80, z: -180, scale: 0.75, filter: 'blur(12px)' },
-          {
-            opacity: 1,
-            x: 340,
-            y: 80,
-            z: 40,
-            scale: 0.95,
-            filter: 'blur(0px)',
-            duration: 0.13,
-            ease: 'power2.out',
-          },
-          0.60
-        );
-
-        tl.fromTo(
-          cssLogo,
-          { opacity: 0, x: 420, y: 140, z: -120, rotateY: -20, filter: 'blur(10px)' },
-          {
-            opacity: 1,
-            x: 260,
-            y: 130,
-            z: 70,
-            rotateY: -8,
-            filter: 'blur(0px)',
-            duration: 0.13,
-            ease: 'power2.out',
-          },
-          0.62
-        );
-
-        if (cssPath) {
-          tl.to(
-            cssPath,
-            { strokeDashoffset: 0, opacity: 0.5, duration: 0.10, ease: 'power1.inOut' },
-            0.63
-          );
-        }
-      }
-
-      // SQL from bottom-depth
-      if (sqlItem && sqlLogo) {
-        tl.fromTo(
-          sqlItem,
-          { opacity: 0, x: 40, y: 440, z: -250, scale: 0.7, filter: 'blur(12px)' },
-          {
-            opacity: 1,
-            x: 40,
-            y: 240,
-            z: 20,
-            scale: 0.95,
-            filter: 'blur(0px)',
-            duration: 0.13,
-            ease: 'power2.out',
-          },
-          0.64
-        );
-
-        tl.fromTo(
-          sqlLogo,
-          { opacity: 0, x: 40, y: 480, z: -200, rotateX: -25, filter: 'blur(10px)' },
-          {
-            opacity: 1,
-            x: 40,
-            y: 300,
-            z: 40,
-            rotateX: -6,
-            filter: 'blur(0px)',
-            duration: 0.13,
-            ease: 'power2.out',
-          },
-          0.66
-        );
-
-        if (sqlPath) {
-          tl.to(
-            sqlPath,
-            { strokeDashoffset: 0, opacity: 0.5, duration: 0.10, ease: 'power1.inOut' },
-            0.67
-          );
-        }
-      }
-
-      // =========================================================================
-      // ACT 6: Grand Constellation Wide Climax (0.72 -> 0.86)
-      // =========================================================================
-      // Camera pulls back to reveal the full living orbital constellation network
-      tl.to(
-        cameraRig,
-        {
-          translateZ: -120,
-          rotateX: 0,
-          rotateY: 0,
-          duration: 0.14,
-          ease: 'power2.inOut',
-        },
-        0.72
-      );
-
-      // Enhance the constellation orbital lines & brightness
-      if (svgConstellationRef.current) {
-        tl.to(
-          svgConstellationRef.current,
-          { opacity: 0.85, duration: 0.12, ease: 'power1.inOut' },
-          0.74
-        );
-      }
-
-      // =========================================================================
-      // ACT 7: Dissolve to Cosmic Void & Final Monumental Statement (0.85 -> 1.00)
-      // =========================================================================
-      // Languages and logos drift into the deep cosmic void
-      CINEMATIC_LANGUAGES.forEach((lang) => {
-        const itemEl = langItemRefs.current[lang.id];
-        const logoEl = langLogoRefs.current[lang.id];
-
-        if (itemEl) {
-          tl.to(
-            itemEl,
-            {
-              opacity: 0,
-              scale: 0.6,
-              z: -500,
-              filter: 'blur(16px)',
-              duration: 0.10,
-              ease: 'power2.in',
-            },
-            0.85
-          );
-        }
-        if (logoEl) {
-          tl.to(
-            logoEl,
-            {
-              opacity: 0,
-              scale: 0.5,
-              z: -500,
-              filter: 'blur(14px)',
-              duration: 0.10,
-              ease: 'power2.in',
-            },
-            0.85
-          );
-        }
-      });
-
-      // Constellation lines fade
-      if (svgConstellationRef.current) {
-        tl.to(
-          svgConstellationRef.current,
-          { opacity: 0, duration: 0.08, ease: 'power1.in' },
-          0.86
-        );
-      }
-
-      // Particle sphere recedes into subtle background ambient core
-      tl.to(
-        sphere,
-        {
-          scale: 0.45,
-          opacity: 0.25,
-          z: -300,
-          duration: 0.12,
-          ease: 'power2.inOut',
-        },
-        0.87
-      );
-
-      // Final Monumental Statement appears with huge editorial impact
-      tl.fromTo(
-        outro,
-        { opacity: 0, scale: 0.92, y: 50, filter: 'blur(14px)' },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          filter: 'blur(0px)',
-          duration: 0.12,
-          ease: 'power2.out',
-        },
-        0.88
-      );
-    }, section);
+    window.addEventListener('resize', updateCoordinates);
+    const timer = setTimeout(updateCoordinates, 300);
 
     return () => {
-      ctx.revert();
+      ro.disconnect();
+      window.removeEventListener('resize', updateCoordinates);
+      clearTimeout(timer);
     };
-  }, []);
+  }, [updateCoordinates, selectedCategory]);
 
   return (
     <section
-      ref={sectionRef}
       id="section-language-skills"
-      className="relative w-full bg-black text-white selection:bg-white selection:text-black overflow-hidden"
-      style={{
-        height: '620vh',
-      }}
-      aria-label="Section 4: The Languages Behind The Work"
+      className="relative w-full min-h-screen bg-black text-white py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-t border-neutral-900 overflow-hidden select-none"
+      aria-label="Section 4: Programming Language Mastery"
     >
-      {/* Pinned Viewport Stage */}
+      {/* 1. Background Ambient Radial Grid */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(30,58,138,0.15)_0%,rgba(0,0,0,0.95)_70%)]" />
       <div
-        ref={stageRef}
-        className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden bg-black select-none"
+        className="pointer-events-none absolute inset-0 opacity-15"
         style={{
-          perspective: '1400px',
+          backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
         }}
-      >
-        {/* Deep Space Background Grid & Starlight */}
-        <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.08)_0%,transparent_70%)]" />
-        <div
-          className="absolute inset-0 pointer-events-none opacity-10"
-          style={{
-            backgroundImage:
-              'radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 0)',
-            backgroundSize: '48px 48px',
-          }}
-        />
+      />
 
-        {/* Master 3D Spatial Camera Rig */}
+      <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center">
+        {/* 2. Section Header & Metrics */}
+        <div className="w-full flex flex-col items-center text-center mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-neutral-800 bg-neutral-950/80 backdrop-blur-md mb-4 text-xs font-mono tracking-widest text-neutral-300">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span>04 // LANGUAGE MASTERY & SYNAPSE CORE</span>
+          </div>
+
+          <h2 className="font-orbitron font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight uppercase leading-none max-w-4xl">
+            CODING LANGUAGES <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-white via-neutral-200 to-neutral-500 bg-clip-text text-transparent">
+              & SYSTEM SYNTAX
+            </span>
+          </h2>
+
+          <p className="mt-4 text-neutral-400 text-sm sm:text-base max-w-2xl font-light leading-relaxed">
+            Multi-paradigm fluency across systems engineering, distributed backends, AI pipelines,
+            and high-performance interfaces. Connected to the central execution core.
+          </p>
+
+          {/* Quick Metrics Bar */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 font-mono text-xs text-neutral-400">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-900/60">
+              <Terminal size={14} className="text-cyan-400" />
+              <span className="text-white font-bold">{PROGRAMMING_LANGUAGES.length} LANGUAGES</span>
+              <span className="text-neutral-500">LEARNED</span>
+            </div>
+
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-900/60">
+              <Layers size={14} className="text-blue-400" />
+              <span>4 PARADIGMS</span>
+            </div>
+
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-900/60">
+              <Cpu size={14} className="text-emerald-400" />
+              <span>130+ REPOSITORIES</span>
+            </div>
+          </div>
+
+          {/* Category Filter Tabs */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-mono tracking-wider transition-all duration-200 cursor-pointer ${
+                  selectedCategory === cat
+                    ? 'bg-white text-black font-bold shadow-[0_0_15px_rgba(255,255,255,0.4)]'
+                    : 'bg-neutral-900/80 text-neutral-400 hover:text-white hover:bg-neutral-800 border border-white/5'
+                }`}
+              >
+                {cat.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 3. Main Interactive Stage (Sphere in Center with Cards and Connecting Lines) */}
         <div
-          ref={cameraRigRef}
-          className="relative w-full h-full flex items-center justify-center pointer-events-none"
-          style={{
-            transformStyle: 'preserve-3d',
-          }}
+          ref={containerRef}
+          className="relative w-full min-h-[640px] lg:min-h-[720px] rounded-2xl border border-white/10 bg-neutral-950/50 backdrop-blur-xl p-4 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden"
         >
-          {/* ========================================================================= */}
-          {/* ACT 1: Prologue Editorial Typography */}
-          {/* ========================================================================= */}
-          <div
-            ref={introBlockRef}
-            className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-40"
-            style={{ transformStyle: 'preserve-3d' }}
-          >
-            {/* Technical Identifier */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-md mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              <span className="text-[11px] font-mono tracking-[0.25em] text-neutral-300 uppercase">
-                04 // LANGUAGE SYSTEM
-              </span>
-            </div>
-
-            {/* Monumental Asymmetrical Statement */}
-            <div className="max-w-5xl">
-              <h2 className="font-orbitron font-black text-4xl sm:text-7xl lg:text-8xl tracking-tight uppercase text-white leading-[0.95] text-left sm:text-center">
-                THE LANGUAGES <br />
-                <span className="text-neutral-500">BEHIND</span> <br />
-                THE WORK.
-              </h2>
-            </div>
-
-            <p className="mt-8 font-mono text-xs sm:text-sm text-neutral-400 tracking-widest uppercase max-w-md text-center opacity-70">
-              [ SCROLL TO EXPLORE THE SYNTAX ARCHITECTURE ]
-            </p>
+          {/* Dynamic Laser Connecting Lines (Desktop / Large View) */}
+          <div className="hidden lg:block absolute inset-0">
+            <ConnectionLines
+              cardCoords={cardCoords}
+              centerCoord={centerCoord}
+              languages={PROGRAMMING_LANGUAGES}
+              activeId={activeLangId}
+              hoveredId={hoveredLangId}
+              containerWidth={dimensions.width}
+              containerHeight={dimensions.height}
+            />
           </div>
 
-          {/* ========================================================================= */}
-          {/* ACT 2 - 6: Massive Central Glowing Particles Knowledge Core */}
-          {/* ========================================================================= */}
-          <div
-            ref={sphereContainerRef}
-            className="absolute flex items-center justify-center w-[340px] h-[340px] sm:w-[520px] sm:h-[520px] lg:w-[680px] lg:h-[680px] z-10 pointer-events-none"
-            style={{
-              transformStyle: 'preserve-3d',
-            }}
-          >
-            {/* Concentric Coordinate Rings */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[70%] h-[70%] rounded-full border border-white/5 animate-[spin_80s_linear_infinite]" />
-              <div className="w-[85%] h-[85%] rounded-full border border-dashed border-white/10 animate-[spin_60s_linear_infinite_reverse]" />
-            </div>
-
-            {/* Glowing Particles System */}
-            <div className="relative w-full h-full flex items-center justify-center">
-              <GlowingParticles
-                color="#60A5FA"
-                hot="#FFFFFF"
-                density={24}
-                streak={12}
-                speed={14}
-                size={5}
-                bloom={18}
-                rim={20}
-                haze={20}
-                spin={16}
-                direction="right"
-                sizePercent={90}
-              />
-            </div>
-          </div>
-
-          {/* ========================================================================= */}
-          {/* Dynamic SVG Constellation Lattice Neural Paths */}
-          {/* ========================================================================= */}
-          <svg
-            ref={svgConstellationRef}
-            className="absolute inset-0 w-full h-full pointer-events-none z-15 opacity-50"
-            viewBox="-600 -400 1200 800"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <defs>
-              <filter id="cinematic-glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="2.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* Orbital Arc Traces connecting core (0,0) to each language coordinate */}
-            {/* JavaScript (-320, 90) */}
-            <path
-              ref={(el) => {
-                pathRefs.current['javascript'] = el;
-              }}
-              d="M -320 90 C -220 160, -120 80, 0 0"
-              fill="none"
-              stroke="#F7DF1E"
-              strokeWidth="1.2"
-              filter="url(#cinematic-glow)"
-            />
-
-            {/* Python (-20, -220) */}
-            <path
-              ref={(el) => {
-                pathRefs.current['python'] = el;
-              }}
-              d="M -20 -220 C -60 -140, -40 -60, 0 0"
-              fill="none"
-              stroke="#3776AB"
-              strokeWidth="1.2"
-              filter="url(#cinematic-glow)"
-            />
-
-            {/* TypeScript (320, -90) */}
-            <path
-              ref={(el) => {
-                pathRefs.current['typescript'] = el;
-              }}
-              d="M 320 -90 C 220 -150, 110 -60, 0 0"
-              fill="none"
-              stroke="#3178C6"
-              strokeWidth="1.2"
-              filter="url(#cinematic-glow)"
-            />
-
-            {/* HTML (-360, -70) */}
-            <path
-              ref={(el) => {
-                pathRefs.current['html'] = el;
-              }}
-              d="M -360 -70 C -250 -120, -130 -30, 0 0"
-              fill="none"
-              stroke="#E34F26"
-              strokeWidth="1.2"
-              filter="url(#cinematic-glow)"
-            />
-
-            {/* CSS (340, 80) */}
-            <path
-              ref={(el) => {
-                pathRefs.current['css'] = el;
-              }}
-              d="M 340 80 C 240 140, 130 50, 0 0"
-              fill="none"
-              stroke="#1572B6"
-              strokeWidth="1.2"
-              filter="url(#cinematic-glow)"
-            />
-
-            {/* SQL (40, 240) */}
-            <path
-              ref={(el) => {
-                pathRefs.current['sql'] = el;
-              }}
-              d="M 40 240 C 60 160, 30 70, 0 0"
-              fill="none"
-              stroke="#4169E1"
-              strokeWidth="1.2"
-              filter="url(#cinematic-glow)"
-            />
-          </svg>
-
-          {/* ========================================================================= */}
-          {/* ACT 3 - 6: Floating 3D Spatial Typography & Technology Logos */}
-          {/* ========================================================================= */}
-          {CINEMATIC_LANGUAGES.map((lang) => (
-            <React.Fragment key={lang.id}>
-              {/* Floating Spatial Typography */}
-              <div
-                ref={(el) => {
-                  langItemRefs.current[lang.id] = el;
-                }}
-                className="absolute flex flex-col pointer-events-none z-30 select-none"
-                style={{
-                  transformStyle: 'preserve-3d',
-                }}
-              >
-                <div className="flex items-baseline gap-3">
-                  <span className="font-mono text-xs sm:text-sm text-neutral-500 font-bold tracking-widest">
-                    // {lang.shortCode}
-                  </span>
-                  <span
-                    className="font-orbitron font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight text-white uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                    style={{
-                      textShadow: `0 0 30px ${lang.glowColor}`,
-                    }}
-                  >
-                    {lang.name}
-                  </span>
-                </div>
-                <span className="font-mono text-[10px] sm:text-xs text-neutral-400 tracking-wider mt-1 max-w-[260px] opacity-80">
-                  {lang.tagline}
-                </span>
-              </div>
-
-              {/* Floating 3D Technology Emblem */}
-              <div
-                ref={(el) => {
-                  langLogoRefs.current[lang.id] = el;
-                }}
-                className="absolute flex items-center justify-center pointer-events-none z-30"
-                style={{
-                  transformStyle: 'preserve-3d',
-                }}
-              >
+          {/* Left Wing Language Cards */}
+          <div className="w-full lg:w-[320px] flex flex-col gap-3.5 z-20">
+            {leftWingLanguages.map((lang) => {
+              const isFilteredOut =
+                selectedCategory !== 'ALL' && lang.category !== selectedCategory;
+              return (
                 <div
-                  className="w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center rounded-2xl p-3 sm:p-4 backdrop-blur-md border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)]"
-                  style={{
-                    backgroundColor: 'rgba(10, 10, 10, 0.65)',
-                    boxShadow: `0 0 35px ${lang.glowColor}`,
-                    borderColor: `${lang.color}40`,
+                  key={lang.id}
+                  ref={(el) => {
+                    cardElementRefs.current[lang.id] = el;
                   }}
+                  className={`transition-opacity duration-300 ${
+                    isFilteredOut ? 'opacity-30' : 'opacity-100'
+                  }`}
                 >
-                  <img
-                    src={lang.icon}
-                    alt={`${lang.name} emblem`}
-                    className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
-                    loading="lazy"
-                    decoding="async"
+                  <LanguageCard
+                    language={lang}
+                    isSelected={activeLangId === lang.id}
+                    isHovered={hoveredLangId === lang.id}
+                    onSelect={() => {
+                      setActiveLangId(lang.id);
+                      updateCoordinates();
+                    }}
+                    onHover={(hovered) => setHoveredLangId(hovered ? lang.id : null)}
                   />
                 </div>
-              </div>
-            </React.Fragment>
-          ))}
+              );
+            })}
+          </div>
 
-          {/* ========================================================================= */}
-          {/* ACT 7: Monumental Editorial Outro Statement */}
-          {/* ========================================================================= */}
+          {/* Central Glowing Particles Sphere Container */}
           <div
-            ref={outroBlockRef}
-            className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-40 pointer-events-none"
-            style={{ transformStyle: 'preserve-3d' }}
+            ref={sphereRef}
+            className="relative flex-1 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] w-full max-w-[480px] z-20"
           >
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-md mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-mono tracking-[0.25em] text-neutral-300 uppercase">
-                ENGINEERING ETHOS
-              </span>
+            {/* Concentric Ambient Coordinate Rings */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] rounded-full border border-white/5 animate-[spin_60s_linear_infinite]" />
+              <div className="absolute w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] rounded-full border border-dashed border-cyan-500/15 animate-[spin_40s_linear_infinite_reverse]" />
             </div>
 
-            <div className="max-w-4xl">
-              <h2 className="font-orbitron font-black text-5xl sm:text-8xl lg:text-9xl tracking-tighter uppercase text-white leading-[0.92] drop-shadow-[0_0_40px_rgba(255,255,255,0.25)]">
-                LEARN. <br />
-                <span className="bg-gradient-to-r from-white via-neutral-300 to-neutral-500 bg-clip-text text-transparent">
-                  BUILD.
-                </span> <br />
-                REPEAT.
-              </h2>
-            </div>
+            {/* Glowing Particles Component */}
+            <div className="relative w-full h-[320px] sm:h-[400px] lg:h-[460px] flex items-center justify-center">
+              <GlowingParticles
+                color={activeLanguage.color}
+                hot="#FFFFFF"
+                density={18}
+                streak={10}
+                speed={16}
+                size={5}
+                bloom={16}
+                rim={18}
+                haze={18}
+                spin={20}
+                direction="right"
+                sizePercent={92}
+              />
 
-            <p className="mt-8 font-mono text-xs sm:text-sm text-neutral-400 tracking-[0.2em] uppercase max-w-lg text-center opacity-80">
-              CONTINUOUS COMPUTATIONAL REFINEMENT // ZERO COMPROMISE
-            </p>
+              {/* Sphere Core Focal Overlay Pill */}
+              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-full border border-white/15 bg-black/80 backdrop-blur-md text-[11px] font-mono text-neutral-300 pointer-events-none">
+                <span
+                  className="w-2 h-2 rounded-full animate-ping"
+                  style={{ backgroundColor: activeLanguage.color }}
+                />
+                <span className="font-bold tracking-wider uppercase text-white">
+                  {activeLanguage.name} CORE
+                </span>
+                <span className="text-neutral-500">//</span>
+                <span className="text-neutral-400">{activeLanguage.proficiency}% FLUENCY</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Wing Language Cards */}
+          <div className="w-full lg:w-[320px] flex flex-col gap-3.5 z-20">
+            {rightWingLanguages.map((lang) => {
+              const isFilteredOut =
+                selectedCategory !== 'ALL' && lang.category !== selectedCategory;
+              return (
+                <div
+                  key={lang.id}
+                  ref={(el) => {
+                    cardElementRefs.current[lang.id] = el;
+                  }}
+                  className={`transition-opacity duration-300 ${
+                    isFilteredOut ? 'opacity-30' : 'opacity-100'
+                  }`}
+                >
+                  <LanguageCard
+                    language={lang}
+                    isSelected={activeLangId === lang.id}
+                    isHovered={hoveredLangId === lang.id}
+                    onSelect={() => {
+                      setActiveLangId(lang.id);
+                      updateCoordinates();
+                    }}
+                    onHover={(hovered) => setHoveredLangId(hovered ? lang.id : null)}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Cinematic Section HUD Overlays */}
-        {/* Top-Right Technical Coordinates */}
-        <div className="absolute top-8 right-8 hidden sm:flex items-center gap-3 z-50 pointer-events-none">
-          <div className="text-[11px] font-mono text-neutral-500 tracking-widest border border-white/10 px-3 py-1.5 rounded bg-black/60 backdrop-blur-md">
-            SYS.SYNTAX // VOLUMETRIC MATRIX
-          </div>
-        </div>
+        {/* 4. Active Language Architectural Deep-Dive HUD */}
+        <div className="w-full mt-6 rounded-xl border border-white/10 bg-neutral-950/80 backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center p-2.5 shrink-0 border"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                borderColor: activeLanguage.color,
+                boxShadow: `0 0 20px ${activeLanguage.glowColor}`,
+              }}
+            >
+              <img
+                src={activeLanguage.icon}
+                alt={activeLanguage.name}
+                className="w-full h-full object-contain"
+              />
+            </div>
 
-        {/* Bottom-Left Status Indicator */}
-        <div className="absolute bottom-8 left-8 hidden sm:flex items-center gap-2 z-50 pointer-events-none">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-neutral-950/70 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-            <span className="text-[11px] font-mono text-neutral-300 tracking-wider">
-              6 CORE PARADIGMS
-            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-orbitron font-bold text-lg sm:text-xl text-white">
+                  {activeLanguage.name}
+                </h3>
+                <span
+                  className="text-[10px] font-mono uppercase px-2 py-0.5 rounded border"
+                  style={{
+                    borderColor: activeLanguage.color,
+                    color: '#ffffff',
+                    backgroundColor: activeLanguage.glowColor,
+                  }}
+                >
+                  {activeLanguage.category}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-neutral-300 mt-1 max-w-2xl font-light">
+                {activeLanguage.description}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-6 shrink-0 border-t md:border-t-0 md:border-l border-neutral-800 pt-4 md:pt-0 md:pl-6 w-full md:w-auto justify-between md:justify-start">
+            <div>
+              <div className="text-[10px] font-mono text-neutral-500 uppercase">Experience</div>
+              <div className="text-sm font-mono font-bold text-white mt-0.5">
+                {activeLanguage.experience}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[10px] font-mono text-neutral-500 uppercase">Proficiency</div>
+              <div
+                className="text-sm font-mono font-bold mt-0.5"
+                style={{ color: activeLanguage.color }}
+              >
+                {activeLanguage.proficiency}%
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[10px] font-mono text-neutral-500 uppercase">Projects</div>
+              <div className="text-sm font-mono font-bold text-white mt-0.5">
+                {activeLanguage.projectsCount}+ Built
+              </div>
+            </div>
           </div>
         </div>
       </div>

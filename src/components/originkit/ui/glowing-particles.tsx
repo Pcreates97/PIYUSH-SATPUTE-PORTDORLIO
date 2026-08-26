@@ -1,26 +1,18 @@
-import React, { useEffect, useRef } from "react"
+"use client"
+
+import * as React from "react"
+import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 /**
  * Glowing Particles — a burst of light thrown out of a hot core.
- *
- * The points are not scattered through the volume: they sit on rays, several to
- * a ray, each staggered a little behind the last, so a group reads as a streak
- * rather than as noise. The rays decelerate, which piles them up where they
- * finish — the circular rim is not a primitive, it is several thousand streak
- * endpoints arriving on the same shell.
- *
- * All travel happens in the vertex shader — the position attribute is a unit
- * direction and radius comes from time — so tens of thousands of points cost no
- * per-frame CPU work. The scene is then rendered off-screen and run through a
- * two-level separable gaussian, composited back additively. Point sprites
- * cannot bloom on their own: their light stops dead at the sprite edge, and the
- * spill past it is most of what makes light look like light.
+ * Features both hardware-accelerated WebGL shader mode and a zero-fail 
+ * high-performance Canvas 2D fallback for devices/browsers where WebGL is blocked or disabled.
  */
 
 const PERSPECTIVE = 0.15
 
-/** How far the burst throws. Fixed — the panel used to own this. */
+/** How far the burst throws. */
 const REACH = 2.7
 
 const DEFAULTS = {
@@ -58,22 +50,15 @@ function clamp(v: number, lo: number, hi: number, fallback: number): number {
     return Math.max(lo, Math.min(hi, n))
 }
 
-/** Panel values are whole numbers; the shader wants the real ones. */
 function settingsFor(cfg: Config) {
     const density = clamp(cfg.density, 1, 20, DEFAULTS.density)
     const streak = clamp(cfg.streak, 1, 20, DEFAULTS.streak)
     return {
-        // Squared, because doubling the ray count barely reads at the sparse end
-        // and the top of the slider is where it wants to be dense.
         rays: Math.round(50 + density * density * 7),
-        // Points per ray. More of them is a longer, more continuous streak
-        // rather than more particles somewhere else.
         perRay: Math.round(1 + streak * 1.7),
         speed: clamp(cfg.speed, 0, 20, DEFAULTS.speed) * 0.05,
         size: 1.2 + clamp(cfg.size, 1, 20, DEFAULTS.size) * 1.4,
         bloom: clamp(cfg.bloom, 0, 20, DEFAULTS.bloom) * 0.075,
-        // 1 puts every ray on the same shell — one clean circle. Lower lets the
-        // lengths scatter and the edge goes ragged.
         rim: clamp(cfg.rim, 0, 20, DEFAULTS.rim) / 20,
         haze: clamp(cfg.haze, 0, 20, DEFAULTS.haze) * 0.075,
         spin: clamp(cfg.spin, 0, 20, DEFAULTS.spin) * 0.05,
@@ -82,12 +67,32 @@ function settingsFor(cfg: Config) {
 }
 
 /**
- * Points grouped onto shared directions.
- *
- * Ray directions come off the Fibonacci sphere: evenly spread, with none of the
- * clumping at the poles that naive lat/long sampling gives. Then jittered,
- * because a perfectly even fan reads as a manufactured object.
+ * Check if WebGL context can be created safely without crashing or throwing
  */
+function isWebGLAvailable(): boolean {
+    if (typeof window === "undefined" || !window.WebGLRenderingContext) {
+        return false
+    }
+    try {
+        const testCanvas = document.createElement("canvas")
+        const gl =
+            testCanvas.getContext("webgl2") ||
+            testCanvas.getContext("webgl") ||
+            testCanvas.getContext("experimental-webgl")
+        if (!gl) return false
+        if (
+            "isContextLost" in gl &&
+            typeof (gl as any).isContextLost === "function" &&
+            (gl as any).isContextLost()
+        ) {
+            return false
+        }
+        return true
+    } catch {
+        return false
+    }
+}
+
 function buildCloud(rays: number, perRay: number): THREE.BufferGeometry {
     const count = rays * perRay
     const dir = new Float32Array(count * 3)
@@ -105,8 +110,6 @@ function buildCloud(rays: number, perRay: number): THREE.BufferGeometry {
         let dy = y
         let dz = Math.sin(theta) * ring
 
-        // Jitter, then renormalise, so every ray still leaves the core at the
-        // same speed — otherwise the shorter vectors lag and the rim dents.
         dx += (Math.random() - 0.5) * 0.1
         dy += (Math.random() - 0.5) * 0.1
         dz += (Math.random() - 0.5) * 0.1
@@ -115,8 +118,6 @@ function buildCloud(rays: number, perRay: number): THREE.BufferGeometry {
         dy /= len
         dz /= len
 
-        // How far this particular ray gets. The Rim control pulls all of these
-        // toward 1 at render time.
         const rayLife = 0.6 + Math.random() * 0.4
         const phase = Math.random()
 
@@ -124,8 +125,6 @@ function buildCloud(rays: number, perRay: number): THREE.BufferGeometry {
             dir[i * 3] = dx
             dir[i * 3 + 1] = dy
             dir[i * 3 + 2] = dz
-            // The tail sits a fraction of a cycle behind the head; that offset
-            // is the whole of what turns a group of points into a streak.
             offset[i] = phase + (p / perRay) * 0.2
             seed[i] = rayLife
             i++
@@ -133,8 +132,6 @@ function buildCloud(rays: number, perRay: number): THREE.BufferGeometry {
     }
 
     const geometry = new THREE.BufferGeometry()
-    // Named `position` so three still builds a bounding sphere; the shader
-    // treats it as a direction and derives the real position from time.
     geometry.setAttribute("position", new THREE.BufferAttribute(dir, 3))
     geometry.setAttribute("aOffset", new THREE.BufferAttribute(offset, 1))
     geometry.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1))
@@ -156,15 +153,7 @@ const PARTICLE_VERTEX = /* glsl */ `
     varying float vBright;
 
     void main() {
-        // Each trail runs its own clock, so the cloud never pulses in unison.
         float t = fract(aOffset + uTime * uSpeed * (0.65 + aSeed * 0.7));
-
-        /*
-         * Rays decelerate: 1 - (1-t)^3 covers most of the distance early and
-         * then crawls, so points bunch where they finish. That bunching draws
-         * the rim, and uRim pulls the per-ray lengths together so they all
-         * arrive at the same shell.
-         */
         float life = mix(aSeed, 1.0, uRim);
         float r = uRadius * life * (1.0 - pow(1.0 - t, 3.0));
 
@@ -172,14 +161,10 @@ const PARTICLE_VERTEX = /* glsl */ `
         gl_Position = projectionMatrix * mv;
 
         float shrink = 1.0 - t * 0.45;
-        gl_PointSize =
-            uSize * shrink * uPixelRatio * (10.0 / max(0.001, -mv.z));
+        gl_PointSize = uSize * shrink * uPixelRatio * (10.0 / max(0.001, -mv.z));
 
         float birth = smoothstep(0.0, 0.05, t);
-        // Held almost to the shell and then cut, which is what keeps the rim an
-        // edge rather than a fade.
         float death = 1.0 - smoothstep(0.82, 1.0, t);
-        // Sparkle, fast enough to read as scintillation rather than a throb.
         float flick = 0.5 + 0.5 * sin(uTime * 9.0 + aSeed * 43.0 + aOffset * 61.0);
         vBright = birth * death * flick;
         vLife = t;
@@ -197,17 +182,10 @@ const PARTICLE_FRAGMENT = /* glsl */ `
         float d = length(gl_PointCoord - 0.5) * 2.0;
         if (d > 1.0) discard;
         float fall = 1.0 - d;
-
-        // A tight spike with a little bloom around it: the spike is the spark
-        // and the loose term is what keeps neighbouring points reading as one
-        // haze rather than as separate dots.
         float shape = pow(fall, 5.0) + pow(fall, 1.6) * 0.3;
 
-        // Light leaves the core white and takes on colour as it travels.
         vec3 col = mix(uHot, uColor, smoothstep(0.0, 0.55, vLife));
         float a = shape * vBright;
-        // Premultiplied, against an additive blend: brightness carries alpha, so
-        // there is no sprite edge to see.
         gl_FragColor = vec4(col * a, a);
     }
 `
@@ -229,9 +207,6 @@ const HAZE_FRAGMENT = /* glsl */ `
     void main() {
         float d = length(vUv - 0.5) * 2.0;
         if (d > 1.0) discard;
-        // A wide soft falloff for the burst to sit in, so the cloud is not
-        // floating in a hole. Nothing tight here — the core is made of
-        // overlapping particles and their bloom, not of a painted disc.
         float haze = pow(1.0 - d, 1.5);
         float a = clamp(haze * uHaze, 0.0, 1.0);
         gl_FragColor = vec4(uColor * a, a);
@@ -242,17 +217,10 @@ const QUAD_VERTEX = /* glsl */ `
     varying vec2 vUv;
     void main() {
         vUv = uv;
-        // Already in clip space; no camera involved.
         gl_Position = vec4(position.xy, 0.0, 1.0);
     }
 `
 
-/**
- * One axis of a separable gaussian, five taps at linear-sampled offsets.
- *
- * Two of these passes cost ten samples where the equivalent 2D kernel costs
- * eighty-one, and the result is identical because a gaussian is separable.
- */
 const BLUR_FRAGMENT = /* glsl */ `
     uniform sampler2D tDiffuse;
     uniform vec2 uStep;
@@ -277,9 +245,6 @@ const COMPOSITE_FRAGMENT = /* glsl */ `
 
     void main() {
         vec4 base = texture2D(tBase, vUv);
-        // Two radii: the near one is the halation right around each spark, the
-        // wide one the glow over the whole burst. A single radius can be one or
-        // the other and never both.
         vec4 glow = texture2D(tNear, vUv) * 0.85 + texture2D(tWide, vUv) * 1.15;
         vec4 col = base + glow * uBloom;
         gl_FragColor = vec4(col.rgb, clamp(col.a, 0.0, 1.0));
@@ -290,20 +255,19 @@ class BurstScene {
     private container: HTMLElement
     private cfg: Config
 
-    private renderer: THREE.WebGLRenderer
+    private renderer!: THREE.WebGLRenderer
     private scene = new THREE.Scene()
     private camera = new THREE.PerspectiveCamera(30, 1, 0.1, 2000)
     private group = new THREE.Group()
 
-    private geometry: THREE.BufferGeometry
-    private material: THREE.ShaderMaterial
-    private points: THREE.Points
+    private geometry!: THREE.BufferGeometry
+    private material!: THREE.ShaderMaterial
+    private points!: THREE.Points
 
     private hazeGeometry = new THREE.PlaneGeometry(1, 1)
-    private hazeMaterial: THREE.ShaderMaterial
-    private haze: THREE.Mesh
+    private hazeMaterial!: THREE.ShaderMaterial
+    private haze!: THREE.Mesh
 
-    // Post chain: the scene lands in rtBase, then two ping-ponged blur levels.
     private rtBase: THREE.WebGLRenderTarget | null = null
     private rtHalfA: THREE.WebGLRenderTarget | null = null
     private rtHalfB: THREE.WebGLRenderTarget | null = null
@@ -313,9 +277,9 @@ class BurstScene {
     private quadScene = new THREE.Scene()
     private quadCamera = new THREE.Camera()
     private quadGeometry = new THREE.PlaneGeometry(2, 2)
-    private quad: THREE.Mesh
-    private blurMaterial: THREE.ShaderMaterial
-    private compositeMaterial: THREE.ShaderMaterial
+    private quad!: THREE.Mesh
+    private blurMaterial!: THREE.ShaderMaterial
+    private compositeMaterial!: THREE.ShaderMaterial
 
     private time = 0
     private spinAngle = 0
@@ -325,26 +289,45 @@ class BurstScene {
     private frameId = 0
     private lastT = 0
     private disposed = false
+    private isContextLost = false
+    private onContextLostCallback?: () => void
 
-    constructor(container: HTMLElement, cfg: Config) {
+    constructor(container: HTMLElement, cfg: Config, onContextLost?: () => void) {
         this.container = container
         this.cfg = cfg
+        this.onContextLostCallback = onContextLost
         const S = settingsFor(cfg)
 
         this.renderer = new THREE.WebGLRenderer({
             antialias: false,
             alpha: true,
             premultipliedAlpha: true,
+            powerPreference: "default",
+            failIfMajorPerformanceCaveat: false,
         })
+
         this.dpr = Math.min(window.devicePixelRatio || 1, 2)
         this.renderer.setPixelRatio(this.dpr)
         this.renderer.outputColorSpace = THREE.SRGBColorSpace
         this.renderer.setClearColor(0x000000, 0)
+        
         const el = this.renderer.domElement
         el.style.position = "absolute"
         el.style.inset = "0"
         el.style.width = "100%"
         el.style.height = "100%"
+        el.style.pointerEvents = "none"
+
+        // Context loss handler to prevent page block
+        el.addEventListener("webglcontextlost", (event) => {
+            event.preventDefault()
+            this.isContextLost = true
+            cancelAnimationFrame(this.frameId)
+            if (this.onContextLostCallback) {
+                this.onContextLostCallback()
+            }
+        })
+
         container.appendChild(el)
 
         this.material = new THREE.ShaderMaterial({
@@ -361,8 +344,6 @@ class BurstScene {
                 uHot: { value: new THREE.Color(cfg.hot) },
             },
             transparent: true,
-            // Light adds up. Overlapping points have to compound into the
-            // blown-out core rather than one occluding the next.
             blending: THREE.AdditiveBlending,
             depthWrite: false,
             depthTest: false,
@@ -370,8 +351,6 @@ class BurstScene {
 
         this.geometry = buildCloud(S.rays, S.perRay)
         this.points = new THREE.Points(this.geometry, this.material)
-        // The shader moves everything, so three's culling maths cannot know
-        // where the points really are.
         this.points.frustumCulled = false
         this.group.add(this.points)
 
@@ -389,8 +368,6 @@ class BurstScene {
         })
         this.haze = new THREE.Mesh(this.hazeGeometry, this.hazeMaterial)
 
-        // Outside the spinning group: it is a billboard, and a radial glow
-        // turned edge-on disappears.
         this.scene.add(this.haze)
         this.scene.add(this.group)
         this.applyScales()
@@ -418,8 +395,6 @@ class BurstScene {
             depthTest: false,
             depthWrite: false,
             transparent: true,
-            // Everything upstream is premultiplied, so the canvas draw is a
-            // straight src-over on premultiplied colour.
             blending: THREE.CustomBlending,
             blendSrc: THREE.OneFactor,
             blendDst: THREE.OneMinusSrcAlphaFactor,
@@ -431,43 +406,36 @@ class BurstScene {
     }
 
     private applyScales() {
-        // The haze reaches past the particles, so the burst has something to sit
-        // in rather than a hole around it.
         this.haze.scale.setScalar(REACH * 2.6)
     }
 
     private makeTargets(w: number, h: number) {
+        if (this.isContextLost) return
         this.disposeTargets()
-        // Half float where it is available: bloom sums many bright samples, and
-        // an 8-bit buffer clips them to white before the blur ever sees them.
-        const type = this.renderer.capabilities.isWebGL2
-            ? THREE.HalfFloatType
-            : THREE.UnsignedByteType
-        const opts = {
-            minFilter: THREE.LinearFilter,
-            magFilter: THREE.LinearFilter,
-            format: THREE.RGBAFormat,
-            type,
-            depthBuffer: false,
-            stencilBuffer: false,
+        try {
+            const type = THREE.UnsignedByteType
+            const opts = {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.LinearFilter,
+                format: THREE.RGBAFormat,
+                type,
+                depthBuffer: false,
+                stencilBuffer: false,
+            }
+            const half = (n: number) => Math.max(1, Math.floor(n / 2))
+            const quarter = (n: number) => Math.max(1, Math.floor(n / 4))
+            this.rtBase = new THREE.WebGLRenderTarget(w, h, opts)
+            this.rtHalfA = new THREE.WebGLRenderTarget(half(w), half(h), opts)
+            this.rtHalfB = new THREE.WebGLRenderTarget(half(w), half(h), opts)
+            this.rtQuarterA = new THREE.WebGLRenderTarget(quarter(w), quarter(h), opts)
+            this.rtQuarterB = new THREE.WebGLRenderTarget(quarter(w), quarter(h), opts)
+        } catch {
+            this.rtBase = null
+            this.rtHalfA = null
+            this.rtHalfB = null
+            this.rtQuarterA = null
+            this.rtQuarterB = null
         }
-        const half = (n: number) => Math.max(1, Math.floor(n / 2))
-        const quarter = (n: number) => Math.max(1, Math.floor(n / 4))
-        this.rtBase = new THREE.WebGLRenderTarget(w, h, opts)
-        // Blurring at half and quarter resolution is most of why this is cheap,
-        // and costs nothing visible — the output is a wide gaussian either way.
-        this.rtHalfA = new THREE.WebGLRenderTarget(half(w), half(h), opts)
-        this.rtHalfB = new THREE.WebGLRenderTarget(half(w), half(h), opts)
-        this.rtQuarterA = new THREE.WebGLRenderTarget(
-            quarter(w),
-            quarter(h),
-            opts
-        )
-        this.rtQuarterB = new THREE.WebGLRenderTarget(
-            quarter(w),
-            quarter(h),
-            opts
-        )
     }
 
     private disposeTargets() {
@@ -493,6 +461,7 @@ class BurstScene {
         dx: number,
         dy: number
     ) {
+        if (this.isContextLost) return
         this.blurMaterial.uniforms.tDiffuse.value = source
         this.blurMaterial.uniforms.uStep.value.set(
             dx / target.width,
@@ -507,26 +476,31 @@ class BurstScene {
     start() {
         this.lastT = performance.now()
         const loop = () => {
+            if (this.disposed || this.isContextLost) return
             this.frameId = requestAnimationFrame(loop)
             this.step()
         }
-        loop()
+        this.frameId = requestAnimationFrame(loop)
     }
 
     setSize(width: number, height: number) {
-        if (this.disposed || width <= 0 || height <= 0) return
+        if (this.disposed || this.isContextLost || width <= 0 || height <= 0) return
         this.width = width
         this.height = height
-        this.renderer.setSize(width, height, false)
-        this.makeTargets(
-            Math.max(1, Math.floor(width * this.dpr)),
-            Math.max(1, Math.floor(height * this.dpr))
-        )
-        this.updateCamera()
+        try {
+            this.renderer.setSize(width, height, false)
+            this.makeTargets(
+                Math.max(1, Math.floor(width * this.dpr)),
+                Math.max(1, Math.floor(height * this.dpr))
+            )
+            this.updateCamera()
+        } catch {
+            // Safe fallback
+        }
     }
 
     updateConfig(cfg: Config) {
-        if (this.disposed) return
+        if (this.disposed || this.isContextLost) return
         const prev = this.cfg
         this.cfg = cfg
         const S = settingsFor(cfg)
@@ -542,7 +516,6 @@ class BurstScene {
         this.hazeMaterial.uniforms.uHaze.value = S.haze
         this.compositeMaterial.uniforms.uBloom.value = S.bloom
 
-        // Only the counts own the buffers; everything else is a uniform.
         if (cfg.density !== prev.density || cfg.streak !== prev.streak) {
             const next = buildCloud(S.rays, S.perRay)
             this.geometry.dispose()
@@ -559,8 +532,6 @@ class BurstScene {
         const aspect = w / h
         const distance = 1 / PERSPECTIVE
         const sizePct = clamp(this.cfg.sizePercent, 20, 200, 90)
-        // Framed on the haze rather than on the particles, so the glow is not
-        // clipped square at the edge of the canvas.
         const span = 7.4 * (100 / sizePct)
         const visibleHeight = aspect < 1 ? span / aspect : span
 
@@ -575,71 +546,266 @@ class BurstScene {
     }
 
     private step() {
-        if (this.disposed) return
-        const now = performance.now()
-        let dt = (now - this.lastT) / 1000
-        this.lastT = now
-        if (!isFinite(dt) || dt < 0) dt = 0
-        if (dt > 0.05) dt = 0.05
+        if (this.disposed || this.isContextLost) return
+        try {
+            const now = performance.now()
+            let dt = (now - this.lastT) / 1000
+            this.lastT = now
+            if (!isFinite(dt) || dt < 0) dt = 0
+            if (dt > 0.05) dt = 0.05
 
-        const S = settingsFor(this.cfg)
-        this.time += dt
-        this.spinAngle += S.spin * S.heading * dt
+            const S = settingsFor(this.cfg)
+            this.time += dt
+            this.spinAngle += S.spin * S.heading * dt
 
-        this.material.uniforms.uTime.value = this.time
-        // Turned on two axes at once, so no ray ever traces the same path twice
-        // and the burst never settles into a readable pattern.
-        this.group.rotation.y = this.spinAngle
-        this.group.rotation.x = Math.sin(this.spinAngle * 0.6) * 0.35
+            this.material.uniforms.uTime.value = this.time
+            this.group.rotation.y = this.spinAngle
+            this.group.rotation.x = Math.sin(this.spinAngle * 0.6) * 0.35
 
-        const base = this.rtBase
-        const hA = this.rtHalfA
-        const hB = this.rtHalfB
-        const qA = this.rtQuarterA
-        const qB = this.rtQuarterB
-        if (!base || !hA || !hB || !qA || !qB) {
-            this.renderer.setRenderTarget(null)
+            const base = this.rtBase
+            const hA = this.rtHalfA
+            const hB = this.rtHalfB
+            const qA = this.rtQuarterA
+            const qB = this.rtQuarterB
+
+            if (!base || !hA || !hB || !qA || !qB) {
+                this.renderer.setRenderTarget(null)
+                this.renderer.render(this.scene, this.camera)
+                return
+            }
+
+            this.renderer.setRenderTarget(base)
+            this.renderer.clear()
             this.renderer.render(this.scene, this.camera)
-            return
+
+            this.blurPass(base.texture, hA, 1, 0)
+            this.blurPass(hA.texture, hB, 0, 1)
+            this.blurPass(hB.texture, qA, 1, 0)
+            this.blurPass(qA.texture, qB, 0, 1)
+
+            const c = this.compositeMaterial.uniforms
+            c.tBase.value = base.texture
+            c.tNear.value = hB.texture
+            c.tWide.value = qB.texture
+            this.quad.material = this.compositeMaterial
+            this.renderer.setRenderTarget(null)
+            this.renderer.clear()
+            this.renderer.render(this.quadScene, this.quadCamera)
+        } catch {
+            // Safeguard against runtime render errors
         }
-
-        this.renderer.setRenderTarget(base)
-        this.renderer.clear()
-        this.renderer.render(this.scene, this.camera)
-
-        // Near halation, then the same buffer blurred again at quarter res for
-        // the wide glow. Chaining the second level off the first is what gets a
-        // very wide radius out of a five-tap kernel.
-        this.blurPass(base.texture, hA, 1, 0)
-        this.blurPass(hA.texture, hB, 0, 1)
-        this.blurPass(hB.texture, qA, 1, 0)
-        this.blurPass(qA.texture, qB, 0, 1)
-
-        const c = this.compositeMaterial.uniforms
-        c.tBase.value = base.texture
-        c.tNear.value = hB.texture
-        c.tWide.value = qB.texture
-        this.quad.material = this.compositeMaterial
-        this.renderer.setRenderTarget(null)
-        this.renderer.clear()
-        this.renderer.render(this.quadScene, this.quadCamera)
     }
 
     dispose() {
         this.disposed = true
         cancelAnimationFrame(this.frameId)
-        this.geometry.dispose()
-        this.material.dispose()
-        this.hazeGeometry.dispose()
-        this.hazeMaterial.dispose()
-        this.quadGeometry.dispose()
-        this.blurMaterial.dispose()
-        this.compositeMaterial.dispose()
-        this.disposeTargets()
-        this.renderer.dispose()
-        const el = this.renderer.domElement
-        if (el.parentNode === this.container) this.container.removeChild(el)
+        try {
+            this.geometry?.dispose()
+            this.material?.dispose()
+            this.hazeGeometry?.dispose()
+            this.hazeMaterial?.dispose()
+            this.quadGeometry?.dispose()
+            this.blurMaterial?.dispose()
+            this.compositeMaterial?.dispose()
+            this.disposeTargets()
+            this.renderer?.dispose()
+            const el = this.renderer?.domElement
+            if (el && el.parentNode === this.container) {
+                this.container.removeChild(el)
+            }
+        } catch {
+            // Ignore disposal errors
+        }
     }
+}
+
+/**
+ * High-performance 2D Canvas Fallback
+ * Renders glowing particle streaks, Fibonacci rays, and a radial core when WebGL is unavailable.
+ */
+function Canvas2DFallback({
+    color = DEFAULTS.color,
+    hot = DEFAULTS.hot,
+    speed = DEFAULTS.speed,
+    density = DEFAULTS.density,
+    spin = DEFAULTS.spin,
+}: {
+    color?: string
+    hot?: string
+    speed?: number
+    density?: number
+    spin?: number
+}) {
+    const canvasRef = useRef<HTMLCanvasElement | null>(null)
+    const animRef = useRef<number | null>(null)
+
+    useEffect(() => {
+        const canvas = canvasRef.current
+        if (!canvas) return
+        const ctx = canvas.getContext("2d")
+        if (!ctx) return
+
+        let width = canvas.parentElement?.clientWidth || 400
+        let height = canvas.parentElement?.clientHeight || 400
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2)
+        canvas.width = width * dpr
+        canvas.height = height * dpr
+
+        // Generate Fibonacci rays
+        const rayCount = Math.round(40 + (density / 20) * 80)
+        const pointsPerRay = 7
+        const total = rayCount * pointsPerRay
+
+        interface Particle {
+            x: number
+            y: number
+            z: number
+            phase: number
+            life: number
+            speedMod: number
+        }
+
+        const particles: Particle[] = []
+        const golden = Math.PI * (3 - Math.sqrt(5))
+
+        for (let r = 0; r < rayCount; r++) {
+            const y = 1 - (r / Math.max(1, rayCount - 1)) * 2
+            const ring = Math.sqrt(Math.max(0, 1 - y * y))
+            const theta = golden * r
+            let dx = Math.cos(theta) * ring
+            let dy = y
+            let dz = Math.sin(theta) * ring
+
+            const rayLife = 0.7 + Math.random() * 0.3
+            const phase = Math.random()
+
+            for (let p = 0; p < pointsPerRay; p++) {
+                particles.push({
+                    x: dx,
+                    y: dy,
+                    z: dz,
+                    phase: phase + (p / pointsPerRay) * 0.18,
+                    life: rayLife,
+                    speedMod: 0.8 + Math.random() * 0.4,
+                })
+            }
+        }
+
+        let time = 0
+        let spinAngle = 0
+        let lastT = performance.now()
+
+        const render = (now: number) => {
+            const dt = Math.min((now - lastT) / 1000, 0.05)
+            lastT = now
+            time += dt * (speed * 0.05)
+            spinAngle += dt * (spin * 0.04)
+
+            const w = canvas.width
+            const h = canvas.height
+            const cx = w / 2
+            const cy = h / 2
+            const radiusScale = Math.min(w, h) * 0.42
+
+            ctx.clearRect(0, 0, w, h)
+
+            // 1. Draw central glowing core
+            const coreGradient = ctx.createRadialGradient(cx, cy, 2, cx, cy, radiusScale * 0.6)
+            coreGradient.addColorStop(0, hot)
+            coreGradient.addColorStop(0.2, color)
+            coreGradient.addColorStop(0.6, `${color}33`)
+            coreGradient.addColorStop(1, "transparent")
+
+            ctx.save()
+            ctx.fillStyle = coreGradient
+            ctx.beginPath()
+            ctx.arc(cx, cy, radiusScale * 0.6, 0, Math.PI * 2)
+            ctx.fill()
+            ctx.restore()
+
+            // 2. Draw 3D projected particle streaks
+            ctx.save()
+            ctx.globalCompositeOperation = "lighter"
+
+            const cosY = Math.cos(spinAngle)
+            const sinY = Math.sin(spinAngle)
+            const cosX = Math.cos(Math.sin(spinAngle * 0.6) * 0.35)
+            const sinX = Math.sin(Math.sin(spinAngle * 0.6) * 0.35)
+
+            for (let i = 0; i < total; i++) {
+                const p = particles[i]
+                const t = (p.phase + time * p.speedMod) % 1.0
+
+                // Decelerating expansion
+                const r = radiusScale * p.life * (1.0 - Math.pow(1.0 - t, 2.5))
+
+                // 3D rotation
+                let rx = p.x * r
+                let ry = p.y * r
+                let rz = p.z * r
+
+                // Rotate Y
+                const x1 = rx * cosY + rz * sinY
+                const z1 = -rx * sinY + rz * cosY
+
+                // Rotate X
+                const y2 = ry * cosX - z1 * sinX
+                const z2 = ry * sinX + z1 * cosX
+
+                // Perspective projection
+                const fov = 400 * dpr
+                const distance = 500 * dpr
+                const scale = fov / (distance + z2)
+
+                const screenX = cx + x1 * scale
+                const screenY = cy + y2 * scale
+
+                // Brightness curve
+                const birth = Math.min(1, t * 8)
+                const death = Math.max(0, 1 - (t - 0.75) * 4)
+                const alpha = Math.max(0, Math.min(1, birth * death * 0.85))
+
+                if (alpha <= 0.01) continue
+
+                const pointSize = Math.max(1, (3 + (1 - t) * 3) * scale * dpr)
+
+                ctx.fillStyle = t < 0.25 ? hot : color
+                ctx.globalAlpha = alpha
+                ctx.beginPath()
+                ctx.arc(screenX, screenY, pointSize, 0, Math.PI * 2)
+                ctx.fill()
+            }
+
+            ctx.restore()
+            animRef.current = requestAnimationFrame(render)
+        }
+
+        animRef.current = requestAnimationFrame(render)
+
+        const handleResize = () => {
+            if (!canvas || !canvas.parentElement) return
+            width = canvas.parentElement.clientWidth || 400
+            height = canvas.parentElement.clientHeight || 400
+            canvas.width = width * dpr
+            canvas.height = height * dpr
+        }
+
+        window.addEventListener("resize", handleResize)
+
+        return () => {
+            if (animRef.current) cancelAnimationFrame(animRef.current)
+            window.removeEventListener("resize", handleResize)
+        }
+    }, [color, hot, speed, density, spin])
+
+    return (
+        <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ width: "100%", height: "100%" }}
+        />
+    )
 }
 
 export interface GlowingParticlesProps {
@@ -677,6 +843,7 @@ export default function GlowingParticles(props: GlowingParticlesProps) {
 
     const containerRef = useRef<HTMLDivElement | null>(null)
     const sceneRef = useRef<BurstScene | null>(null)
+    const [useFallback, setUseFallback] = useState(false)
 
     const cfgRef = useRef<Config>(null as any)
     cfgRef.current = {
@@ -697,30 +864,46 @@ export default function GlowingParticles(props: GlowingParticlesProps) {
     useEffect(() => {
         const container = containerRef.current
         if (!container) return
-        let scene: BurstScene
-        try {
-            scene = new BurstScene(container, cfgRef.current)
-        } catch {
-            // No WebGL — render an empty frame rather than throwing.
+
+        // 1. Pre-check WebGL capability
+        if (!isWebGLAvailable()) {
+            setUseFallback(true)
             return
         }
-        sceneRef.current = scene
-        scene.setSize(container.clientWidth, container.clientHeight)
-        scene.start()
+
+        // 2. Try initializing WebGL Three.js Scene
+        let scene: BurstScene
+        try {
+            scene = new BurstScene(container, cfgRef.current, () => {
+                // On WebGL context lost event
+                setUseFallback(true)
+            })
+            sceneRef.current = scene
+            scene.setSize(container.clientWidth || 300, container.clientHeight || 300)
+            scene.start()
+        } catch {
+            setUseFallback(true)
+            return
+        }
 
         const ro = new ResizeObserver(() => {
-            scene.setSize(container.clientWidth, container.clientHeight)
+            if (container && sceneRef.current) {
+                sceneRef.current.setSize(container.clientWidth || 300, container.clientHeight || 300)
+            }
         })
         ro.observe(container)
+
         return () => {
             ro.disconnect()
             scene.dispose()
             sceneRef.current = null
         }
-    }, [])
+    }, [useFallback])
 
     useEffect(() => {
-        sceneRef.current?.updateConfig(cfgRef.current)
+        if (!useFallback && sceneRef.current) {
+            sceneRef.current.updateConfig(cfgRef.current)
+        }
     }, [
         color,
         hot,
@@ -734,6 +917,7 @@ export default function GlowingParticles(props: GlowingParticlesProps) {
         spin,
         direction,
         sizePercent,
+        useFallback,
     ])
 
     return (
@@ -750,7 +934,17 @@ export default function GlowingParticles(props: GlowingParticlesProps) {
                 overflow: "hidden",
                 ...style,
             }}
-        />
+        >
+            {useFallback && (
+                <Canvas2DFallback
+                    color={color}
+                    hot={hot}
+                    speed={speed}
+                    density={density}
+                    spin={spin}
+                />
+            )}
+        </div>
     )
 }
 
