@@ -2,6 +2,8 @@
 
 @layer base {
   :root {
+    --font-heading: 'HelveticaNowDisplay-Medium', 'Helvetica Neue', Arial, sans-serif;
+    --font-body: 'HelveticaNowDisplayW01-Rg', 'Plus Jakarta Sans', 'Helvetica Neue', Arial, sans-serif;
     --pad-x: clamp(1.25rem, 4.5vw, 5rem);
     --pad-y: clamp(1rem, 3vh, 4rem);
     --header-pt: clamp(1.25rem, 2.5vh, 2.5rem);
@@ -34,10 +36,18 @@
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-body);
     background-color: #000000;
     overflow-x: hidden;
   }
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
 }
 
 .font-orbitron {
@@ -46,4 +56,13 @@
 
 .font-jakarta {
   font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: cursorBlink 1s step-end infinite;
 }

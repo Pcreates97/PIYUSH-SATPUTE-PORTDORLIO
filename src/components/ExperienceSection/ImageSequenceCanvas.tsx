@@ -201,7 +201,7 @@ export const ImageSequenceCanvas = forwardRef<ImageSequenceCanvasHandle, ImageSe
           ref={fallbackImgRef}
           src={getFrameUrl(0)}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none z-0"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none z-0 opacity-60"
           loading="eager"
           decoding="async"
         />
@@ -214,10 +214,28 @@ export const ImageSequenceCanvas = forwardRef<ImageSequenceCanvasHandle, ImageSe
           style={{ willChange: 'transform' }}
         />
 
+        {/* Darkening Scrim Overlay for Enhanced Text Contrast */}
+        <div
+          id="canvas-dark-scrim"
+          className="pointer-events-none absolute inset-0 z-3 bg-black/40"
+        />
+
+        {/* Directional Horizontal Edge Shadows (for Left & Right Text Columns) */}
+        <div
+          id="canvas-horizontal-scrim"
+          className="pointer-events-none absolute inset-0 z-4 bg-gradient-to-r from-black/80 via-black/20 to-black/80"
+        />
+
+        {/* Vertical Top/Bottom Header/Footer Fade */}
+        <div
+          id="canvas-vertical-scrim"
+          className="pointer-events-none absolute inset-0 z-5 bg-gradient-to-b from-black/70 via-transparent to-black/85"
+        />
+
         {/* Cinematic Vignette Overlay */}
         <div
           id="canvas-cinematic-vignette"
-          className="pointer-events-none absolute inset-0 z-5 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.35)_70%,rgba(0,0,0,0.85)_100%)]"
+          className="pointer-events-none absolute inset-0 z-6 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.5)_65%,rgba(0,0,0,0.95)_100%)]"
         />
 
         {/* Buffer status indicator */}
