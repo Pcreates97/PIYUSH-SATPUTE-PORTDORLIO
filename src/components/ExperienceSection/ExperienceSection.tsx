@@ -34,10 +34,15 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
     const sticky = stickyRef.current;
     if (!container || !sticky) return;
 
-    let lastRenderedFrame = -1;
+    // Immediately synchronize HUD telemetry and initial frame on component startup
+    cardsHandleRef.current?.updateTelemetry(0, 0);
+    canvasHandleRef.current?.renderFrame(0);
 
     const ctx = gsap.context(() => {
-      // 1. Create scrubbed timeline for cards with hardware-accelerated transforms
+      const frameTracker = { frame: 0 };
+      let lastRenderedFrame = -1;
+
+      // 1. Create scrubbed master timeline with fluid physics damping
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: container,
@@ -45,29 +50,36 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
           end: 'bottom bottom',
           pin: sticky,
           pinSpacing: true,
-          scrub: 0.35, // Buttery smooth scrubbing with natural physics damping
+          scrub: 0.4, // Silky smooth Apple-style inertia scrub
           anticipatePin: 1,
-          fastScrollEnd: true,
-          onUpdate: (self) => {
-            const p = self.progress;
-            const targetFrame = Math.min(
-              totalFrames - 1,
-              Math.max(0, Math.floor(p * (totalFrames - 1)))
-            );
-
-            // Fast frame render update
-            if (targetFrame !== lastRenderedFrame) {
-              lastRenderedFrame = targetFrame;
-              canvasHandleRef.current?.renderFrame(targetFrame);
-            }
-
-            // Direct telemetry HUD update (zero React reconciliation)
-            cardsHandleRef.current?.updateTelemetry(p, targetFrame);
-          },
+          invalidateOnRefresh: true,
         },
       });
 
-      // Section 01: IDENTITY (Left-aligned, visible on entry 0.00 to 0.22)
+      // 2. Timeline Frame Tween seamlessly driving canvas blitting
+      tl.to(
+        frameTracker,
+        {
+          frame: totalFrames - 1,
+          ease: 'none',
+          duration: 1,
+          onUpdate: () => {
+            const curFrame = Math.min(
+              totalFrames - 1,
+              Math.max(0, Math.round(frameTracker.frame))
+            );
+            if (curFrame !== lastRenderedFrame) {
+              lastRenderedFrame = curFrame;
+              canvasHandleRef.current?.renderFrame(curFrame);
+            }
+            const curProgress = curFrame / (totalFrames - 1);
+            cardsHandleRef.current?.updateTelemetry(curProgress, curFrame);
+          },
+        },
+        0
+      );
+
+      // Section 01: IDENTITY (Left-aligned, visible on entry 0.00 to 0.20)
       tl.fromTo(
         '#experience-card-01',
         { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto' },
@@ -76,51 +88,51 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
       ).to(
         '#experience-card-01',
         { autoAlpha: 0, x: -25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.20
+        0.18
       );
 
-      // Section 02: JOURNEY (Right-aligned, 0.26 to 0.45)
+      // Section 02: JOURNEY (Right-aligned, 0.22 to 0.42)
       tl.fromTo(
         '#experience-card-02',
         { autoAlpha: 0, x: 35, scale: 0.98, pointerEvents: 'none' },
         { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.26
+        0.22
       ).to(
         '#experience-card-02',
         { autoAlpha: 0, x: 25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.42
+        0.39
       );
 
-      // Section 03: TECH STACK (Left-aligned, 0.46 to 0.65)
+      // Section 03: TECH STACK (Left-aligned, 0.43 to 0.63)
       tl.fromTo(
         '#experience-card-03',
         { autoAlpha: 0, x: -35, scale: 0.98, pointerEvents: 'none' },
         { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.46
+        0.43
       ).to(
         '#experience-card-03',
         { autoAlpha: 0, x: -25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.62
+        0.60
       );
 
-      // Section 04: AI & SYSTEMS (Right-aligned, 0.66 to 0.83)
+      // Section 04: AI & SYSTEMS (Right-aligned, 0.64 to 0.82)
       tl.fromTo(
         '#experience-card-04',
         { autoAlpha: 0, x: 35, scale: 0.98, pointerEvents: 'none' },
         { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.66
+        0.64
       ).to(
         '#experience-card-04',
         { autoAlpha: 0, x: 25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.80
+        0.79
       );
 
-      // Section 05: MANIFESTO (Centered, 0.84 to 0.98)
+      // Section 05: MANIFESTO (Centered, 0.83 to 0.98)
       tl.fromTo(
         '#experience-card-05',
         { autoAlpha: 0, y: 35, scale: 0.95, pointerEvents: 'none' },
         { autoAlpha: 1, y: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.84
+        0.83
       ).to(
         '#experience-card-05',
         { autoAlpha: 0, y: -20, scale: 1.02, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
@@ -129,12 +141,12 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
     }, container);
 
     // Trigger recalculation after layout has settled
-    const refreshTimeout = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 200);
+    const t1 = setTimeout(() => ScrollTrigger.refresh(), 100);
+    const t2 = setTimeout(() => ScrollTrigger.refresh(), 500);
 
     return () => {
-      clearTimeout(refreshTimeout);
+      clearTimeout(t1);
+      clearTimeout(t2);
       ctx.revert();
     };
   }, [totalFrames]);
@@ -146,7 +158,7 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
       className="relative w-full bg-black text-white selection:bg-white selection:text-black"
       style={{
         // 600vh scroll height delivers silky-smooth scrubbing through 150 frames with zero lag
-        height: prefersReducedMotion ? 'auto' : '600vh',
+        height: '600vh',
       }}
       aria-label="Section 2: Experience & Spatial Identity Sequence"
     >

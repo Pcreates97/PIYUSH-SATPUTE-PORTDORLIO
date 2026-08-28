@@ -20,11 +20,12 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
     const orbitDegreesRef = useRef<HTMLSpanElement | null>(null);
     const frameNumberRef = useRef<HTMLSpanElement | null>(null);
     const progressPercentRef = useRef<HTMLSpanElement | null>(null);
-    const chapterDotsRef = useRef<(HTMLDivElement | null)[]>([]);
+    const chapterDotsRef = useRef<{ dot: HTMLSpanElement | null; label: HTMLSpanElement | null; container: HTMLDivElement | null }[]>([]);
+    const lastActiveChapterRef = useRef<number>(-1);
 
     useImperativeHandle(ref, () => ({
       updateTelemetry: (progress: number, frameIndex: number) => {
-        // Fast direct DOM property updates - Zero React re-renders!
+        // Fast direct textContent updates - Zero reflow / zero layout query
         if (orbitDegreesRef.current) {
           const deg = Math.round(progress * 360);
           orbitDegreesRef.current.textContent = `${String(deg).padStart(3, '0')}° / 360°`;
@@ -40,41 +41,42 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           progressPercentRef.current.textContent = `${pct}%`;
         }
 
-        // Update Chapter indicator states
-        CHAPTERS.forEach((ch, idx) => {
-          const el = chapterDotsRef.current[idx];
-          if (!el) return;
-          const isActive = progress >= ch.progress[0] && progress < ch.progress[1];
-          const isPassed = progress >= ch.progress[1];
-
-          if (isActive) {
-            el.style.opacity = '1';
-            const dot = el.querySelector('.chapter-dot') as HTMLElement;
-            if (dot) {
-              dot.style.backgroundColor = '#ffffff';
-              dot.style.boxShadow = '0 0 10px rgba(255,255,255,0.9)';
-              dot.style.transform = 'scale(1.3)';
-            }
-            const label = el.querySelector('.chapter-label') as HTMLElement;
-            if (label) {
-              label.style.color = '#ffffff';
-              label.style.fontWeight = '600';
-            }
-          } else {
-            el.style.opacity = isPassed ? '0.6' : '0.3';
-            const dot = el.querySelector('.chapter-dot') as HTMLElement;
-            if (dot) {
-              dot.style.backgroundColor = isPassed ? '#a3a3a3' : '#525252';
-              dot.style.boxShadow = 'none';
-              dot.style.transform = 'scale(1)';
-            }
-            const label = el.querySelector('.chapter-label') as HTMLElement;
-            if (label) {
-              label.style.color = isPassed ? '#a3a3a3' : '#737373';
-              label.style.fontWeight = '400';
-            }
+        // Fast chapter active state update - only touch styles when chapter changes
+        let currentChapterIdx = 0;
+        for (let i = 0; i < CHAPTERS.length; i++) {
+          if (progress >= CHAPTERS[i].progress[0] && progress < CHAPTERS[i].progress[1]) {
+            currentChapterIdx = i;
+            break;
           }
-        });
+          if (progress >= CHAPTERS[i].progress[1]) {
+            currentChapterIdx = i;
+          }
+        }
+
+        if (currentChapterIdx !== lastActiveChapterRef.current) {
+          lastActiveChapterRef.current = currentChapterIdx;
+          chapterDotsRef.current.forEach((item, idx) => {
+            if (!item || !item.dot || !item.label) return;
+            const isActive = idx === currentChapterIdx;
+            const isPassed = idx < currentChapterIdx;
+
+            if (isActive) {
+              if (item.container) item.container.style.opacity = '1';
+              item.dot.style.backgroundColor = '#ffffff';
+              item.dot.style.boxShadow = '0 0 10px rgba(255,255,255,0.9)';
+              item.dot.style.transform = 'scale(1.3)';
+              item.label.style.color = '#ffffff';
+              item.label.style.fontWeight = '600';
+            } else {
+              if (item.container) item.container.style.opacity = isPassed ? '0.6' : '0.3';
+              item.dot.style.backgroundColor = isPassed ? '#a3a3a3' : '#525252';
+              item.dot.style.boxShadow = 'none';
+              item.dot.style.transform = 'scale(1)';
+              item.label.style.color = isPassed ? '#a3a3a3' : '#737373';
+              item.label.style.fontWeight = '400';
+            }
+          });
+        }
       },
     }), []);
 
@@ -118,7 +120,11 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
                   <div
                     key={ch.id}
                     ref={(el) => {
-                      chapterDotsRef.current[idx] = el;
+                      if (!chapterDotsRef.current[idx]) {
+                        chapterDotsRef.current[idx] = { container: el, dot: null, label: null };
+                      } else {
+                        chapterDotsRef.current[idx].container = el;
+                      }
                     }}
                     className="group flex items-center gap-1.5 cursor-default transition-all duration-300 py-1"
                     style={{
@@ -127,6 +133,13 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
                   >
                     <div className="relative flex items-center justify-center">
                       <span
+                        ref={(el) => {
+                          if (!chapterDotsRef.current[idx]) {
+                            chapterDotsRef.current[idx] = { container: null, dot: el, label: null };
+                          } else {
+                            chapterDotsRef.current[idx].dot = el;
+                          }
+                        }}
                         className="chapter-dot w-1.5 h-1.5 rounded-full transition-all duration-300"
                         style={{
                           backgroundColor: isInitial ? '#ffffff' : '#525252',
@@ -136,6 +149,13 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
                       />
                     </div>
                     <span
+                      ref={(el) => {
+                        if (!chapterDotsRef.current[idx]) {
+                          chapterDotsRef.current[idx] = { container: null, dot: null, label: el };
+                        } else {
+                          chapterDotsRef.current[idx].label = el;
+                        }
+                      }}
                       className="chapter-label font-mono text-[10px] lg:text-[11px] tracking-wider uppercase transition-colors whitespace-nowrap"
                       style={{
                         color: isInitial ? '#ffffff' : '#737373',

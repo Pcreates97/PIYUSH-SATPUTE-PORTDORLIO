@@ -3,9 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowUpRight, Check, Code2 } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ImageRevealBackground, BG_IMAGE_1 } from './components/ImageRevealBackground';
+
+gsap.registerPlugin(ScrollTrigger);
 import {
   CornerBracketTL,
   CornerBracketTR,
@@ -18,12 +22,36 @@ import { Drawers, DrawerType } from './components/Drawers';
 import ExperienceSection from './components/ExperienceSection/ExperienceSection';
 import { AICodingSkills } from './components/AICodingSkills';
 import { LanguageSkillsSection } from './components/LanguageSkills';
+import { ProjectsSection } from './components/ProjectsSection';
 import { Footer16 } from './components/Footer16';
 import { GradualBlur } from './components/GradualBlur';
 
 export default function App() {
   const [activeDrawer, setActiveDrawer] = useState<DrawerType>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Global ScrollTrigger synchronization on font loading and image ready
+  useEffect(() => {
+    const handleRefresh = () => {
+      ScrollTrigger.refresh();
+    };
+
+    if (document.fonts) {
+      document.fonts.ready.then(handleRefresh);
+    }
+    window.addEventListener('load', handleRefresh);
+    window.addEventListener('resize', handleRefresh);
+
+    const t1 = setTimeout(handleRefresh, 200);
+    const t2 = setTimeout(handleRefresh, 800);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('load', handleRefresh);
+      window.removeEventListener('resize', handleRefresh);
+    };
+  }, []);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -349,7 +377,13 @@ export default function App() {
       {/* 7. Section 4: Language Skills & Glowing Particles Neural Core */}
       <LanguageSkillsSection />
 
-      {/* 8. Footer (Footer-16 Architecture with Watermark Typography & Ambient Assets) */}
+      {/* 8. Section 5: Interactive Featured Projects & Expandable Profiles with Full GSAP */}
+      <ProjectsSection
+        onOpenDrawer={setActiveDrawer}
+        onShowToast={showToast}
+      />
+
+      {/* 9. Footer (Footer-16 Architecture with Watermark Typography & Ambient Assets) */}
       <Footer16 onOpenDrawer={setActiveDrawer} />
 
       {/* 7. Side Drawers (PROJECTS, EXPERTISE, ABOUT, CONTACT) */}

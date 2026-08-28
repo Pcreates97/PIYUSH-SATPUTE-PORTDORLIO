@@ -40,7 +40,11 @@ export const AICodingSkills: React.FC = () => {
           start: 'top top',
           end: 'bottom bottom',
           pin: stage,
+          pinSpacing: true,
           scrub: 0.35,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          fastScrollEnd: true,
           onUpdate: (self) => {
             setScrollProgress(self.progress);
           },
@@ -111,12 +115,12 @@ export const AICodingSkills: React.FC = () => {
       );
     }, section);
 
-    const refreshTimeout = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 250);
+    const t1 = setTimeout(() => ScrollTrigger.refresh(), 100);
+    const t2 = setTimeout(() => ScrollTrigger.refresh(), 400);
 
     return () => {
-      clearTimeout(refreshTimeout);
+      clearTimeout(t1);
+      clearTimeout(t2);
       ctx.revert();
     };
   }, []);
@@ -178,6 +182,7 @@ export const AICodingSkills: React.FC = () => {
             }}
             loading="eager"
             decoding="async"
+            onLoad={() => ScrollTrigger.refresh()}
           />
         </div>
 

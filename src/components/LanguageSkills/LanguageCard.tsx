@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import gsap from 'gsap';
 import { ProgrammingLanguage } from './languageData';
 import PulsatingBorder from '../originkit/ui/pulsating-border';
 
@@ -18,55 +19,90 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({
   onHover,
 }) => {
   const active = isSelected || isHovered;
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // Custom multi-color harmony matching each language's branding
+  // High-contrast monochromatic border colors (pure black, white, and silver)
   const borderColors = React.useMemo(() => {
-    return [language.color, language.glowColor ? language.color : '#60a5fa', '#ffffff'];
-  }, [language.color, language.glowColor]);
+    return active
+      ? ['#FFFFFF', '#E5E5E5', '#A3A3A3']
+      : ['#525252', '#262626', '#171717'];
+  }, [active]);
+
+  // GSAP 3D Mouse Tilt
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+
+    gsap.to(cardRef.current, {
+      rotateY: (x / rect.width) * 12,
+      rotateX: -(y / rect.height) * 12,
+      duration: 0.35,
+      ease: 'power2.out',
+      transformPerspective: 800,
+      transformOrigin: 'center center',
+    });
+  };
+
+  const handleMouseLeave = () => {
+    onHover(false);
+    if (!cardRef.current) return;
+    gsap.to(cardRef.current, {
+      rotateX: 0,
+      rotateY: 0,
+      duration: 0.5,
+      ease: 'power3.out',
+    });
+  };
 
   return (
     <div
+      ref={cardRef}
       id={`language-card-${language.id}`}
       onClick={onSelect}
       onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      className={`group relative p-3.5 sm:p-4 rounded-xl border transition-all duration-300 cursor-pointer backdrop-blur-md select-none ${
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`group relative p-3.5 sm:p-4 rounded-xl border transition-all duration-300 cursor-pointer backdrop-blur-md select-none will-change-transform ${
         active
-          ? 'bg-neutral-900/90 border-transparent shadow-[0_0_25px_rgba(255,255,255,0.12)] translate-y-[-2px]'
-          : 'bg-neutral-950/80 border-white/10 hover:border-transparent hover:bg-neutral-900/70'
+          ? 'bg-neutral-950/95 border-white shadow-[0_0_30px_rgba(255,255,255,0.18)] translate-y-[-2px]'
+          : 'bg-neutral-950/80 border-neutral-800 hover:border-neutral-500 hover:bg-neutral-900/90'
       }`}
+      style={{ backgroundColor: '#050505' }}
     >
       {/* Originkit Pulsating Border Shader Layer */}
       <div className="absolute inset-0 pointer-events-none rounded-xl overflow-visible">
         <PulsatingBorder
           colors={borderColors}
-          speed={active ? 1.4 : 0.7}
+          speed={active ? 1.4 : 0.6}
           radius={18}
-          thickness={active ? 4.5 : 2.5}
-          softness={active ? 70 : 50}
-          intensity={active ? 45 : 20}
-          bloom={active ? 55 : 25}
-          spotSize={active ? 60 : 45}
-          spread={18}
+          thickness={active ? 4.5 : 2.0}
+          softness={active ? 70 : 40}
+          intensity={active ? 45 : 15}
+          bloom={active ? 55 : 20}
+          spotSize={active ? 60 : 40}
+          spread={16}
         />
       </div>
 
-      {/* Active Indicator Top Glow Line */}
+      {/* Active Indicator Top Glow Line (Pure Monochromatic White) */}
       <div
-        className="absolute top-0 left-4 right-4 h-[1px] transition-opacity duration-300 pointer-events-none z-10"
+        className="absolute top-0 left-4 right-4 h-[1.5px] transition-opacity duration-300 pointer-events-none z-10"
         style={{
-          background: `linear-gradient(90deg, transparent, ${language.color}, transparent)`,
+          background: 'linear-gradient(90deg, transparent, #FFFFFF, transparent)',
           opacity: active ? 1 : 0,
+          boxShadow: '0 0 8px #FFFFFF',
         }}
       />
 
       <div className="relative z-10 flex items-center gap-3">
-        {/* Language Icon / Logo */}
+        {/* Language Icon / Logo (Original icon untouched as requested) */}
         <div
-          className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center p-2 shrink-0 border transition-transform duration-300 group-hover:scale-105"
+          className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center p-2 shrink-0 border transition-transform duration-300 group-hover:scale-105 bg-black"
           style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            borderColor: active ? language.color : 'rgba(255, 255, 255, 0.1)',
+            borderColor: active ? '#FFFFFF' : 'rgba(255, 255, 255, 0.15)',
+            boxShadow: active ? '0 0 14px rgba(255, 255, 255, 0.25)' : 'none',
           }}
         >
           <img
@@ -84,19 +120,18 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({
             <h4 className="font-orbitron font-bold text-sm sm:text-base text-white tracking-wide truncate group-hover:text-white">
               {language.name}
             </h4>
-            <span className="font-mono text-[10px] sm:text-[11px] text-neutral-400 font-semibold shrink-0">
+            <span className="font-mono text-[10px] sm:text-[11px] text-neutral-300 font-bold shrink-0">
               {language.proficiency}%
             </span>
           </div>
 
           <div className="flex items-center gap-2 mt-0.5">
             <span
-              className="text-[10px] font-mono tracking-wider uppercase px-1.5 py-0.5 rounded border"
-              style={{
-                borderColor: active ? language.color : 'rgba(255, 255, 255, 0.08)',
-                color: active ? '#ffffff' : '#a3a3a3',
-                backgroundColor: active ? `${language.glowColor}` : 'rgba(0, 0, 0, 0.3)',
-              }}
+              className={`text-[10px] font-mono tracking-wider uppercase px-1.5 py-0.5 rounded border transition-colors ${
+                active
+                  ? 'border-white text-white bg-neutral-900 font-medium shadow-sm'
+                  : 'border-neutral-800 text-neutral-400 bg-neutral-950'
+              }`}
             >
               {language.category}
             </span>
@@ -107,21 +142,20 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({
         </div>
       </div>
 
-      {/* Proficiency Progress Bar */}
-      <div className="relative z-10 mt-3 w-full bg-neutral-900 rounded-full h-1 overflow-hidden border border-white/5">
+      {/* Monochromatic Proficiency Progress Bar */}
+      <div className="relative z-10 mt-3 w-full bg-neutral-900 rounded-full h-1 overflow-hidden border border-neutral-800">
         <div
-          className="h-full rounded-full transition-all duration-500"
+          className="h-full rounded-full transition-all duration-500 bg-white"
           style={{
             width: `${language.proficiency}%`,
-            backgroundColor: language.color,
-            boxShadow: active ? `0 0 8px ${language.color}` : 'none',
+            boxShadow: active ? '0 0 10px rgba(255, 255, 255, 0.8)' : 'none',
           }}
         />
       </div>
 
       {/* Feature summary */}
-      <div className="relative z-10 mt-2.5 flex items-center justify-between text-[11px] text-neutral-400">
-        <span className="truncate pr-2">{language.highlightFeature}</span>
+      <div className="relative z-10 mt-2.5 flex items-center justify-between text-[11px] text-neutral-400 font-light">
+        <span className="truncate pr-2 text-neutral-300">{language.highlightFeature}</span>
         <span className="font-mono text-[10px] text-neutral-400 shrink-0">
           {language.projectsCount} Projects
         </span>
@@ -134,9 +168,10 @@ export const LanguageCard: React.FC<LanguageCardProps> = ({
         } ${
           active
             ? 'scale-125 bg-white border-white shadow-[0_0_10px_#fff]'
-            : 'bg-neutral-900 border-neutral-600'
+            : 'bg-black border-neutral-700'
         }`}
       />
     </div>
   );
 };
+
