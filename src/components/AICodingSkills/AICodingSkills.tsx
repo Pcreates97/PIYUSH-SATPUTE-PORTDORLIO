@@ -154,12 +154,12 @@ export const AICodingSkills: React.FC = () => {
           className="absolute inset-0 z-5 flex flex-col items-center justify-center pointer-events-none text-center px-4 will-change-[opacity,transform]"
           style={{ opacity: 0 }}
         >
-          <div className="flex items-center gap-2 mb-3 text-neutral-400 font-mono text-xs md:text-sm tracking-[0.3em] uppercase">
+          <div className="flex items-center gap-2 mb-2 sm:mb-3 text-neutral-400 font-mono text-[10px] sm:text-xs md:text-sm tracking-[0.25em] sm:tracking-[0.3em] uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             <span>03 // AI CODING SKILLS</span>
           </div>
 
-          <h2 className="font-orbitron font-black text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-white tracking-tighter uppercase leading-[0.9]">
+          <h2 className="font-orbitron font-black text-4xl sm:text-6xl md:text-8xl lg:text-9xl text-white tracking-tighter uppercase leading-[0.9]">
             AI <br />
             CODING <br />
             SKILLS
@@ -176,7 +176,7 @@ export const AICodingSkills: React.FC = () => {
             ref={characterRef}
             src={CHARACTER_IMAGE}
             alt=""
-            className="h-[68vh] sm:h-[75vh] md:h-[82vh] max-h-[900px] w-auto object-contain select-none pointer-events-none drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)] will-change-[opacity,transform]"
+            className="h-[52vh] sm:h-[66vh] md:h-[78vh] lg:h-[82vh] max-h-[900px] w-auto object-contain select-none pointer-events-none drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)] will-change-[opacity,transform]"
             style={{
               opacity: 1,
             }}
@@ -193,12 +193,12 @@ export const AICodingSkills: React.FC = () => {
           className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none text-center px-4 will-change-[opacity,transform]"
           style={{ opacity: 1 }}
         >
-          <div className="flex items-center gap-2 mb-3 text-neutral-400 font-mono text-xs md:text-sm tracking-[0.3em] uppercase">
+          <div className="flex items-center gap-2 mb-2 sm:mb-3 text-neutral-400 font-mono text-[10px] sm:text-xs md:text-sm tracking-[0.25em] sm:tracking-[0.3em] uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             <span>03 // AI CODING SKILLS</span>
           </div>
 
-          <h2 className="font-orbitron font-black text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-white tracking-tighter uppercase leading-[0.9] drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron font-black text-4xl sm:text-6xl md:text-8xl lg:text-9xl text-white tracking-tighter uppercase leading-[0.9] drop-shadow-[0_15px_35px_rgba(0,0,0,0.95)]">
             AI <br />
             CODING <br />
             SKILLS
@@ -215,13 +215,13 @@ export const AICodingSkills: React.FC = () => {
           className="absolute inset-0 z-25 flex flex-col items-center justify-center pointer-events-none text-center px-4 will-change-[opacity,transform]"
           style={{ opacity: 0 }}
         >
-          <div className="text-neutral-500 font-mono text-xs md:text-sm tracking-[0.3em] uppercase mb-2">
+          <div className="text-neutral-500 font-mono text-[10px] sm:text-xs md:text-sm tracking-[0.25em] sm:tracking-[0.3em] uppercase mb-2">
             ECOSYSTEM MASTERED
           </div>
-          <h2 className="font-orbitron font-black text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white tracking-tight uppercase leading-none">
+          <h2 className="font-orbitron font-black text-3xl sm:text-5xl md:text-7xl lg:text-8xl text-white tracking-tight uppercase leading-none">
             BUILDING WITH AI.
           </h2>
-          <p className="mt-4 text-xs sm:text-sm font-mono text-neutral-400 max-w-md tracking-wider uppercase">
+          <p className="mt-3 sm:mt-4 text-[11px] sm:text-sm font-mono text-neutral-400 max-w-md tracking-wider uppercase">
             Architecting next-generation autonomous workflows & scalable software.
           </p>
         </div>

@@ -368,7 +368,7 @@ export const LanguageSkillsSection: React.FC = () => {
           </div>
 
           {/* Left Wing Language Cards */}
-          <div className="w-full lg:w-[340px] xl:w-[360px] flex flex-col gap-3.5 z-20">
+          <div className="w-full lg:w-[340px] xl:w-[360px] grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-3.5 z-20">
             {leftWingLanguages.map((lang) => {
               const isFilteredOut =
                 selectedCategory !== 'ALL' && lang.category !== selectedCategory;
@@ -400,16 +400,16 @@ export const LanguageSkillsSection: React.FC = () => {
           {/* Central Glowing Particles Sphere Container (White Quantum Core) */}
           <div
             ref={sphereRef}
-            className="relative flex-1 flex flex-col items-center justify-center min-h-[360px] sm:min-h-[440px] lg:min-h-[520px] w-full max-w-[540px] z-20"
+            className="relative flex-1 flex flex-col items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[520px] w-full max-w-[540px] z-20 my-2 lg:my-0"
           >
             {/* Concentric Ambient Coordinate Rings (Monochromatic) */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] rounded-full border border-white/10 animate-[spin_60s_linear_infinite]" />
-              <div className="absolute w-[240px] h-[240px] sm:w-[300px] sm:h-[300px] rounded-full border border-dashed border-white/20 animate-[spin_40s_linear_infinite_reverse]" />
+              <div className="w-[260px] h-[260px] sm:w-[380px] sm:h-[380px] rounded-full border border-white/10 animate-[spin_60s_linear_infinite]" />
+              <div className="absolute w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] rounded-full border border-dashed border-white/20 animate-[spin_40s_linear_infinite_reverse]" />
             </div>
 
             {/* Glowing Particles Component (Black & White Monochromatic Light Stream) */}
-            <div className="relative w-full h-[340px] sm:h-[420px] lg:h-[480px] flex items-center justify-center">
+            <div className="relative w-full h-[280px] sm:h-[380px] lg:h-[480px] flex items-center justify-center">
               <GlowingParticles
                 color="#FFFFFF"
                 hot="#FFFFFF"
@@ -426,8 +426,8 @@ export const LanguageSkillsSection: React.FC = () => {
               />
 
               {/* Sphere Core Focal Overlay Pill (Monochromatic Black & White) */}
-              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-neutral-700 bg-black/90 backdrop-blur-md text-[11px] font-mono text-neutral-300 pointer-events-none shadow-xl">
-                <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+              <div className="absolute bottom-2 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-neutral-700 bg-black/90 backdrop-blur-md text-[10px] sm:text-[11px] font-mono text-neutral-300 pointer-events-none shadow-xl whitespace-nowrap">
+                <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-white animate-ping" />
                 <span className="font-bold tracking-wider uppercase text-white">
                   {activeLanguage.name} CORE
                 </span>
@@ -438,7 +438,7 @@ export const LanguageSkillsSection: React.FC = () => {
           </div>
 
           {/* Right Wing Language Cards */}
-          <div className="w-full lg:w-[340px] xl:w-[360px] flex flex-col gap-3.5 z-20">
+          <div className="w-full lg:w-[340px] xl:w-[360px] grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-3.5 z-20">
             {rightWingLanguages.map((lang) => {
               const isFilteredOut =
                 selectedCategory !== 'ALL' && lang.category !== selectedCategory;

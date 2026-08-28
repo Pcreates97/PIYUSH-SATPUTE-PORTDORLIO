@@ -218,10 +218,10 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
         {/* 4. FULLSCREEN OPEN TYPOGRAPHY (LEFT, RIGHT, CENTER)           */}
         {/* ------------------------------------------------------------- */}
 
-        {/* 01: IDENTITY (Positioned on LEFT) */}
+        {/* 01: IDENTITY (Positioned on LEFT / Responsive Center on Mobile) */}
         <div
           id="experience-card-01"
-          className="absolute z-20 left-6 sm:left-14 md:left-20 lg:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
+          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-12 lg:inset-x-auto lg:left-24 xl:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-7 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
           style={{
             willChange: 'transform, opacity',
             transform: 'translate3d(0, 0px, 0) scale(1)',
@@ -229,21 +229,21 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             visibility: 'visible',
           }}
         >
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-2 sm:mb-3">
             <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span className="font-mono text-xs tracking-[0.3em] uppercase text-neutral-400">
+            <span className="font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-neutral-400">
               01 // IDENTITY
             </span>
           </div>
 
-          <span className="text-xs font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-1">
+          <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block mb-1">
             WHO I AM
           </span>
-          <h2 className="font-orbitron text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black text-white tracking-tight uppercase leading-none mb-4 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white tracking-tight uppercase leading-none mb-3 sm:mb-4 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
             PIYUSH
           </h2>
 
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-5 font-mono text-xs sm:text-sm tracking-wider uppercase text-neutral-300">
+          <div className="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 sm:gap-y-1.5 mb-3.5 sm:mb-5 font-mono text-[11px] sm:text-xs md:text-sm tracking-wider uppercase text-neutral-300">
             <span className="text-white font-semibold">CREATIVE DEVELOPER</span>
             <span className="text-neutral-600 font-light">/</span>
             <span className="text-white font-semibold">AI BUILDER</span>
@@ -251,15 +251,15 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             <span className="text-white font-semibold">SYSTEMS ARCHITECT</span>
           </div>
 
-          <p className="text-sm sm:text-base md:text-lg text-neutral-200 font-light leading-relaxed max-w-lg drop-shadow-[0_2px_16px_rgba(0,0,0,0.95)]">
+          <p className="text-xs sm:text-sm md:text-base lg:text-lg text-neutral-200 font-light leading-relaxed max-w-lg drop-shadow-[0_2px_16px_rgba(0,0,0,0.95)]">
             “I turn ideas into interactive digital experiences, AI-powered tools, and scalable systems with meticulous design and engineering.”
           </p>
         </div>
 
-        {/* 02: JOURNEY (Positioned on RIGHT) */}
+        {/* 02: JOURNEY (Positioned on RIGHT / Responsive Center on Mobile) */}
         <div
           id="experience-card-02"
-          className="absolute z-20 right-6 sm:right-14 md:right-20 lg:right-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
+          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-12 lg:inset-x-auto lg:right-24 xl:right-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-7 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
           style={{
             willChange: 'transform, opacity',
             transform: 'translate3d(0, 30px, 0) scale(0.98)',
@@ -267,31 +267,31 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             visibility: 'hidden',
           }}
         >
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
             <Layers size={14} className="text-white/80" />
-            <span className="font-mono text-xs tracking-[0.3em] uppercase text-neutral-400">
+            <span className="font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-neutral-400">
               02 // PROGRESSION
             </span>
           </div>
 
-          <span className="text-xs font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-1">
+          <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block mb-1">
             TRAJECTORY & MILESTONES
           </span>
-          <h2 className="font-orbitron text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-none mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight uppercase leading-none mb-4 sm:mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
             MY JOURNEY
           </h2>
 
-          <div className="space-y-4 max-w-lg">
+          <div className="space-y-3 sm:space-y-4 max-w-lg max-h-[48vh] lg:max-h-none overflow-y-auto custom-scrollbar pr-1">
             {JOURNEY_MILESTONES.map((item) => (
-              <div key={item.number} className="group flex items-start gap-4">
-                <span className="font-mono text-sm sm:text-base font-bold text-white tracking-widest pt-0.5 shrink-0 drop-shadow">
+              <div key={item.number} className="group flex items-start gap-3 sm:gap-4">
+                <span className="font-mono text-xs sm:text-sm md:text-base font-bold text-white tracking-widest pt-0.5 shrink-0 drop-shadow">
                   {item.number}
                 </span>
-                <div className="border-l border-neutral-700/80 pl-3.5">
-                  <h3 className="font-mono text-xs sm:text-sm font-semibold text-white tracking-wider uppercase drop-shadow">
+                <div className="border-l border-neutral-700/80 pl-3 sm:pl-3.5">
+                  <h3 className="font-mono text-[11px] sm:text-xs md:text-sm font-semibold text-white tracking-wider uppercase drop-shadow">
                     {item.title}
                   </h3>
-                  <p className="text-xs sm:text-[13px] text-neutral-300 leading-relaxed font-light mt-0.5 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+                  <p className="text-[11px] sm:text-xs md:text-[13px] text-neutral-300 leading-relaxed font-light mt-0.5 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
                     {item.description}
                   </p>
                 </div>
@@ -300,10 +300,10 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           </div>
         </div>
 
-        {/* 03: TECH STACK (Positioned on LEFT) */}
+        {/* 03: TECH STACK (Positioned on LEFT / Responsive Center on Mobile) */}
         <div
           id="experience-card-03"
-          className="absolute z-20 left-6 sm:left-14 md:left-20 lg:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
+          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-12 lg:inset-x-auto lg:left-24 xl:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-7 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
           style={{
             willChange: 'transform, opacity',
             transform: 'translate3d(0, 30px, 0) scale(0.98)',
@@ -311,34 +311,34 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             visibility: 'hidden',
           }}
         >
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
             <Terminal size={14} className="text-white/80" />
-            <span className="font-mono text-xs tracking-[0.3em] uppercase text-neutral-400">
+            <span className="font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-neutral-400">
               03 // TECHNICAL STACK
             </span>
           </div>
 
-          <span className="text-xs font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-1">
+          <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block mb-1">
             LANGUAGES, FRAMEWORKS & SYSTEMS
           </span>
-          <h2 className="font-orbitron text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-none mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight uppercase leading-none mb-4 sm:mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
             WHAT I CODE
           </h2>
 
-          <div className="space-y-5 max-w-xl">
+          <div className="space-y-3.5 sm:space-y-5 max-w-xl max-h-[48vh] lg:max-h-none overflow-y-auto custom-scrollbar pr-1">
             {SKILL_CATEGORIES.map((cat) => (
-              <div key={cat.category} className="space-y-2">
-                <span className="text-[11px] font-mono tracking-[0.25em] text-neutral-400 uppercase block">
+              <div key={cat.category} className="space-y-1.5 sm:space-y-2">
+                <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block">
                   // {cat.category}
                 </span>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1.5 sm:gap-y-2">
                   {cat.skills.map((skill) => (
-                    <div key={skill.name} className="flex items-center gap-2 font-mono text-xs sm:text-sm">
+                    <div key={skill.name} className="flex items-center gap-1.5 sm:gap-2 font-mono text-[11px] sm:text-xs md:text-sm">
                       <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
                       <span className="text-white font-medium tracking-wide drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
                         {skill.name}
                       </span>
-                      <span className="text-[10px] text-neutral-500 font-normal">[{skill.tag}]</span>
+                      <span className="text-[9px] sm:text-[10px] text-neutral-500 font-normal">[{skill.tag}]</span>
                     </div>
                   ))}
                 </div>
@@ -347,10 +347,10 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           </div>
         </div>
 
-        {/* 04: AI & SYSTEMS (Positioned on RIGHT) */}
+        {/* 04: AI & SYSTEMS (Positioned on RIGHT / Responsive Center on Mobile) */}
         <div
           id="experience-card-04"
-          className="absolute z-20 right-6 sm:right-14 md:right-20 lg:right-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none"
+          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-12 lg:inset-x-auto lg:right-24 xl:right-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-7 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
           style={{
             willChange: 'transform, opacity',
             transform: 'translate3d(0, 30px, 0) scale(0.98)',
@@ -358,32 +358,32 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             visibility: 'hidden',
           }}
         >
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
             <Cpu size={14} className="text-white/80" />
-            <span className="font-mono text-xs tracking-[0.3em] uppercase text-neutral-400">
+            <span className="font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-neutral-400">
               04 // CAPABILITIES
             </span>
           </div>
 
-          <span className="text-xs font-mono tracking-[0.25em] text-neutral-400 uppercase block mb-1">
+          <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block mb-1">
             CREATIVE ENGINEERING & AGENTS
           </span>
-          <h2 className="font-orbitron text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-none mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight uppercase leading-none mb-4 sm:mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
             AI & SYSTEMS
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 max-w-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-3.5 sm:gap-y-5 max-w-xl max-h-[48vh] lg:max-h-none overflow-y-auto custom-scrollbar pr-1">
             {AI_PILLARS.map((pillar, idx) => (
-              <div key={pillar.title} className="space-y-1.5">
-                <div className="flex items-center gap-2 font-mono text-[10px] text-neutral-400 tracking-widest uppercase">
+              <div key={pillar.title} className="space-y-1 sm:space-y-1.5">
+                <div className="flex items-center gap-2 font-mono text-[9px] sm:text-[10px] text-neutral-400 tracking-widest uppercase">
                   <span>0{idx + 1}</span>
                   <span>/</span>
                   <span className="text-neutral-300 font-semibold">{pillar.tag}</span>
                 </div>
-                <h3 className="font-orbitron text-sm sm:text-base font-bold text-white tracking-wide uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                <h3 className="font-orbitron text-xs sm:text-sm md:text-base font-bold text-white tracking-wide uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
                   {pillar.title}
                 </h3>
-                <p className="text-xs sm:text-[13px] text-neutral-300 font-light leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                <p className="text-[11px] sm:text-xs md:text-[13px] text-neutral-300 font-light leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
                   {pillar.description}
                 </p>
               </div>
@@ -394,7 +394,7 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
         {/* 05: MANIFESTO (FULLSCREEN CENTERED TYPOGRAPHY) */}
         <div
           id="experience-card-05"
-          className="absolute z-20 inset-x-6 sm:inset-x-14 md:inset-x-20 top-1/2 -translate-y-1/2 text-center pointer-events-none flex flex-col items-center justify-center"
+          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-20 top-1/2 -translate-y-1/2 text-center pointer-events-none flex flex-col items-center justify-center bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-8 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
           style={{
             willChange: 'transform, opacity',
             transform: 'translate3d(0, 35px, 0) scale(0.95)',
@@ -402,22 +402,22 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             visibility: 'hidden',
           }}
         >
-          <span className="font-mono text-xs sm:text-sm tracking-[0.35em] uppercase text-neutral-400 block mb-3 drop-shadow">
+          <span className="font-mono text-[10px] sm:text-xs md:text-sm tracking-[0.25em] sm:tracking-[0.35em] uppercase text-neutral-400 block mb-2 sm:mb-3 drop-shadow">
             05 // CREATOR PHILOSOPHY
           </span>
 
-          <h2 className="font-orbitron font-extrabold text-3xl sm:text-5xl md:text-7xl lg:text-8xl text-neutral-400 uppercase tracking-tight leading-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron font-extrabold text-2xl sm:text-4xl md:text-6xl lg:text-8xl text-neutral-400 uppercase tracking-tight leading-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
             I DON'T JUST LEARN.
           </h2>
-          <h1 className="font-orbitron font-black text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-white uppercase tracking-tight leading-none mt-2 mb-6 drop-shadow-[0_8px_40px_rgba(0,0,0,1)]">
+          <h1 className="font-orbitron font-black text-4xl sm:text-6xl md:text-8xl lg:text-9xl text-white uppercase tracking-tight leading-none mt-1 sm:mt-2 mb-4 sm:mb-6 drop-shadow-[0_8px_40px_rgba(0,0,0,1)]">
             I BUILD.
           </h1>
 
-          <p className="text-sm sm:text-lg md:text-xl text-neutral-200 font-light max-w-2xl mx-auto leading-relaxed drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]">
+          <p className="text-xs sm:text-base md:text-xl text-neutral-200 font-light max-w-2xl mx-auto leading-relaxed drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]">
             “Every project is an experiment in craft, speed, and precision.”
           </p>
 
-          <div className="mt-8 inline-flex items-center gap-2 text-xs font-mono text-neutral-400 tracking-widest uppercase drop-shadow">
+          <div className="mt-4 sm:mt-8 inline-flex items-center gap-2 text-[10px] sm:text-xs font-mono text-neutral-400 tracking-widest uppercase drop-shadow">
             <span>READY FOR DEPLOYMENT</span>
             <ArrowDownRight size={14} className="text-white" />
           </div>

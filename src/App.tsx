@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, Check, Code2 } from 'lucide-react';
+import { ArrowUpRight, Check, Code2, Menu, X as CloseIcon } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ImageRevealBackground, BG_IMAGE_1 } from './components/ImageRevealBackground';
@@ -29,6 +29,7 @@ import { GradualBlur } from './components/GradualBlur';
 export default function App() {
   const [activeDrawer, setActiveDrawer] = useState<DrawerType>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   // Global ScrollTrigger synchronization on font loading and image ready
   useEffect(() => {
@@ -111,9 +112,10 @@ export default function App() {
           id="brand-logo-btn"
           onClick={() => {
             setActiveDrawer(null);
+            setMobileMenuOpen(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className="flex items-center font-orbitron font-black text-white hover:opacity-80 transition-opacity cursor-pointer text-left"
+          className="flex items-center font-orbitron font-black text-white hover:opacity-80 transition-opacity cursor-pointer text-left py-1"
           style={{
             fontSize: 'var(--logo)',
             letterSpacing: '0.15em',
@@ -129,10 +131,10 @@ export default function App() {
           </span>
         </button>
 
-        {/* Navigation */}
+        {/* Desktop & Tablet Navigation */}
         <nav
           id="primary-nav"
-          className="flex items-center font-jakarta font-medium uppercase text-white"
+          className="hidden md:flex items-center font-jakarta font-medium uppercase text-white"
           style={{
             fontSize: 'var(--nav)',
             letterSpacing: '0.2em',
@@ -143,7 +145,7 @@ export default function App() {
           <button
             id="nav-projects-btn"
             onClick={() => setActiveDrawer('projects')}
-            className={`hover:opacity-50 transition-opacity cursor-pointer ${
+            className={`hover:opacity-50 transition-opacity cursor-pointer py-1 px-1.5 ${
               activeDrawer === 'projects' ? 'text-neutral-400' : ''
             }`}
           >
@@ -153,7 +155,7 @@ export default function App() {
           <button
             id="nav-expertise-btn"
             onClick={() => setActiveDrawer('expertise')}
-            className={`hover:opacity-50 transition-opacity cursor-pointer ${
+            className={`hover:opacity-50 transition-opacity cursor-pointer py-1 px-1.5 ${
               activeDrawer === 'expertise' ? 'text-neutral-400' : ''
             }`}
           >
@@ -163,7 +165,7 @@ export default function App() {
           <button
             id="nav-about-btn"
             onClick={() => setActiveDrawer('about')}
-            className={`hover:opacity-50 transition-opacity cursor-pointer ${
+            className={`hover:opacity-50 transition-opacity cursor-pointer py-1 px-1.5 ${
               activeDrawer === 'about' ? 'text-neutral-400' : ''
             }`}
           >
@@ -173,7 +175,7 @@ export default function App() {
           <button
             id="nav-contact-btn"
             onClick={() => setActiveDrawer('contact')}
-            className={`hover:opacity-50 transition-opacity cursor-pointer ${
+            className={`hover:opacity-50 transition-opacity cursor-pointer py-1 px-1.5 ${
               activeDrawer === 'contact' ? 'text-neutral-400' : ''
             }`}
           >
@@ -187,7 +189,7 @@ export default function App() {
           <button
             id="nav-terminal-btn"
             onClick={() => setActiveDrawer('projects')}
-            className="hover:opacity-50 transition-opacity cursor-pointer flex items-center justify-center p-1"
+            className="hover:opacity-50 transition-opacity cursor-pointer flex items-center justify-center p-1.5"
             aria-label="View Code Projects"
             title="Projects & Architecture"
           >
@@ -197,7 +199,84 @@ export default function App() {
             />
           </button>
         </nav>
+
+        {/* Mobile Action Bar Trigger (<768px) */}
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            id="mobile-quick-projects-btn"
+            onClick={() => setActiveDrawer('projects')}
+            className="px-3 py-1.5 rounded-full border border-neutral-800 bg-neutral-950/80 text-[11px] font-mono tracking-wider text-neutral-300 flex items-center gap-1.5"
+            aria-label="Quick Projects"
+          >
+            <Code2 size={13} className="text-white" />
+            <span>LABS</span>
+          </button>
+
+          <button
+            id="mobile-menu-trigger-btn"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-neutral-800 bg-neutral-950/90 text-white hover:border-neutral-600 transition-colors"
+            aria-label="Toggle Navigation Menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <CloseIcon size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </header>
+
+      {/* Mobile Navigation Dropdown (<768px) */}
+      {mobileMenuOpen && (
+        <div
+          id="mobile-nav-panel"
+          className="md:hidden relative z-30 mx-4 sm:mx-6 mb-4 p-4 rounded-xl border border-neutral-800 bg-neutral-950/95 backdrop-blur-xl shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200"
+        >
+          <div className="grid grid-cols-2 gap-2 text-xs font-mono tracking-wider uppercase text-neutral-300">
+            <button
+              onClick={() => {
+                setActiveDrawer('projects');
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 p-3 rounded-lg border border-neutral-800/80 bg-neutral-900/60 hover:bg-neutral-900 text-left cursor-pointer"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              <span>PROJECTS</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveDrawer('expertise');
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 p-3 rounded-lg border border-neutral-800/80 bg-neutral-900/60 hover:bg-neutral-900 text-left cursor-pointer"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              <span>EXPERTISE</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveDrawer('about');
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 p-3 rounded-lg border border-neutral-800/80 bg-neutral-900/60 hover:bg-neutral-900 text-left cursor-pointer"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              <span>ABOUT</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveDrawer('contact');
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 p-3 rounded-lg border border-neutral-800/80 bg-neutral-900/60 hover:bg-neutral-900 text-left cursor-pointer"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              <span>CONTACT</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 4. Main Hero Section */}
       <section
@@ -214,7 +293,7 @@ export default function App() {
           {/* Left Headline Block */}
           <div
             id="hero-left-block"
-            className="flex flex-col justify-center items-start max-w-4xl self-center lg:self-center"
+            className="flex flex-col justify-center items-start w-full lg:max-w-4xl self-center lg:self-center"
           >
             {/* Top-Left Corner Bracket */}
             <div className="mb-2 text-white">
@@ -224,7 +303,7 @@ export default function App() {
             {/* Orbitron Headline */}
             <h1
               id="hero-headline"
-              className="font-orbitron font-extrabold uppercase text-white tracking-[0.08em] leading-[1.05]"
+              className="font-orbitron font-extrabold uppercase text-white tracking-[0.06em] sm:tracking-[0.08em] leading-[1.05]"
               style={{
                 fontSize: 'var(--headline)',
               }}
@@ -242,12 +321,12 @@ export default function App() {
               <CornerBracketBL id="hero-bl-bracket" />
             </div>
 
-            {/* CTA Button */}
-            <div className="mt-6 md:mt-8 flex items-center gap-4 flex-wrap">
+            {/* CTA Buttons */}
+            <div className="mt-6 md:mt-8 flex items-center gap-3 sm:gap-4 flex-wrap w-full sm:w-auto">
               <button
                 id="cta-projects-btn"
                 onClick={() => setActiveDrawer('projects')}
-                className="group inline-flex items-center border border-neutral-600 rounded-md uppercase font-jakarta font-medium text-white hover:bg-white hover:text-black hover:border-white transition-all duration-200 cursor-pointer"
+                className="group inline-flex items-center justify-center border border-neutral-600 rounded-md uppercase font-jakarta font-medium text-white hover:bg-white hover:text-black hover:border-white transition-all duration-200 cursor-pointer min-h-[44px]"
                 style={{
                   letterSpacing: '0.18em',
                   fontSize: 'var(--body)',
@@ -267,7 +346,7 @@ export default function App() {
               <button
                 id="cta-contact-btn"
                 onClick={() => setActiveDrawer('contact')}
-                className="inline-flex items-center uppercase font-jakarta font-medium text-neutral-400 hover:text-white transition-colors duration-200 cursor-pointer"
+                className="inline-flex items-center justify-center uppercase font-jakarta font-medium text-neutral-400 hover:text-white transition-colors duration-200 cursor-pointer min-h-[44px]"
                 style={{
                   letterSpacing: '0.18em',
                   fontSize: 'var(--body)',
@@ -283,14 +362,14 @@ export default function App() {
           {/* Right Section with Architectural Feature Block */}
           <div
             id="hero-right-container"
-            className="self-center lg:self-end flex flex-col justify-end items-center lg:items-end w-full lg:w-auto mt-10 lg:mt-0 relative z-20 pointer-events-auto"
+            className="self-start sm:self-center lg:self-end flex flex-col justify-end items-start sm:items-center lg:items-end w-full lg:w-auto mt-8 lg:mt-0 relative z-20 pointer-events-auto"
           >
             {/* Right Feature Block */}
             <div
               id="hero-right-feature-block"
-              className="self-start lg:self-end relative"
+              className="self-start lg:self-end relative w-full sm:w-auto"
             >
-              {/* Framed box with 4 absolute corner brackets (no background card) */}
+              {/* Framed box with 4 absolute corner brackets */}
               <div
                 id="feature-framed-box"
                 className="relative flex flex-col items-start"
@@ -314,7 +393,7 @@ export default function App() {
                 </div>
 
                 {/* Wireframe Globe SVG */}
-                <div className="text-white mb-3">
+                <div className="text-white mb-2 sm:mb-3">
                   <WireframeGlobe id="feature-wireframe-globe" />
                 </div>
 
@@ -323,7 +402,7 @@ export default function App() {
                   id="feature-tagline"
                   className="font-jakarta font-semibold uppercase text-white leading-snug"
                   style={{
-                    letterSpacing: '0.18em',
+                    letterSpacing: '0.16em',
                     fontSize: 'var(--body)',
                   }}
                 >
@@ -338,10 +417,10 @@ export default function App() {
         {/* Hero Bottom Indicator guiding down to Section 2 */}
         <div
           id="hero-scroll-guide"
-          className="relative z-10 w-full flex items-center justify-between py-4 border-t border-neutral-900"
+          className="relative z-10 w-full flex items-center justify-between py-3.5 sm:py-4 border-t border-neutral-900 flex-wrap gap-2"
           style={{ paddingInline: 'var(--pad-x)' }}
         >
-          <div className="flex items-center gap-2 text-neutral-500 text-[10px] font-mono tracking-widest uppercase">
+          <div className="flex items-center gap-2 text-neutral-500 text-[10px] sm:text-[11px] font-mono tracking-widest uppercase">
             <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
             <span>PIYUSH · PORTFOLIO // 2026</span>
           </div>
@@ -350,7 +429,7 @@ export default function App() {
               const sec2 = document.getElementById('section-experience-sequence');
               sec2?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="flex items-center gap-2 text-neutral-400 hover:text-white text-[11px] font-mono tracking-widest uppercase transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-neutral-400 hover:text-white text-[10px] sm:text-[11px] font-mono tracking-widest uppercase transition-colors cursor-pointer min-h-[32px]"
           >
             <span>SCROLL TO ENTER EXPERIENCE</span>
             <span className="animate-bounce">↓</span>

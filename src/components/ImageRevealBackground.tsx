@@ -32,7 +32,15 @@ export function ImageRevealBackground() {
       mouseRef.current.y = e.clientY;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseRef.current.x = e.touches[0].clientX;
+        mouseRef.current.y = e.touches[0].clientY;
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
 
     let animFrameId: number;
 
@@ -45,7 +53,7 @@ export function ImageRevealBackground() {
       smoothRef.current.y += (mouseRef.current.y - smoothRef.current.y) * 0.1;
 
       // 2. Compute radius
-      const radius = Math.round(Math.min(420, Math.max(160, width * 0.16)));
+      const radius = Math.round(Math.min(420, Math.max(120, width * 0.22)));
       const cx = smoothRef.current.x.toFixed(1);
       const cy = smoothRef.current.y.toFixed(1);
 
@@ -75,20 +83,21 @@ export function ImageRevealBackground() {
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
       cancelAnimationFrame(animFrameId);
     };
   }, []);
 
   return (
     <div
-      id="desktop-image-reveal-bg"
-      className="hidden lg:block fixed inset-0 pointer-events-none z-0 overflow-hidden"
+      id="image-reveal-bg-root"
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
       aria-hidden="true"
     >
       {/* 1. Base Layer */}
       <div
         id="bg-base-layer"
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60 lg:opacity-100"
         style={{ backgroundImage: `url(${BG_IMAGE_1})` }}
       />
 
@@ -124,6 +133,9 @@ export function ImageRevealBackground() {
         </defs>
         <rect width="100%" height="100%" fill="url(#lgpsm-grid-pattern)" />
       </svg>
+
+      {/* Mobile/Tablet Dark Scrim Overlay to ensure optimal text contrast */}
+      <div className="absolute inset-0 bg-black/40 lg:bg-transparent pointer-events-none" />
     </div>
   );
 }

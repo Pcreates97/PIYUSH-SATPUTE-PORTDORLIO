@@ -4,41 +4,72 @@
   :root {
     --font-heading: 'HelveticaNowDisplay-Medium', 'Helvetica Neue', Arial, sans-serif;
     --font-body: 'HelveticaNowDisplayW01-Rg', 'Plus Jakarta Sans', 'Helvetica Neue', Arial, sans-serif;
-    --pad-x: clamp(1.25rem, 4.5vw, 5rem);
-    --pad-y: clamp(1rem, 3vh, 4rem);
-    --header-pt: clamp(1.25rem, 2.5vh, 2.5rem);
-    --gap-nav: clamp(1rem, 2.2vw, 2.25rem);
-    --logo: clamp(1.35rem, 1.2vw + 0.9rem, 2.1rem);
-    --logo-deg: clamp(0.65rem, 0.4vw + 0.45rem, 0.9rem);
-    --nav: clamp(0.65rem, 0.35vw + 0.5rem, 0.875rem);
-    --headline: clamp(2.15rem, 4.5vw + 0.75rem, 5.25rem);
-    --body: clamp(0.7rem, 0.35vw + 0.55rem, 0.9rem);
-    --micro: clamp(0.55rem, 0.25vw + 0.45rem, 0.7rem);
-    --btn-px: clamp(1.15rem, 1.4vw, 1.75rem);
-    --btn-py: clamp(0.6rem, 0.9vh, 0.85rem);
-    --btn-gap: clamp(0.75rem, 1vw, 1.1rem);
-    --feature-pad: clamp(1rem, 1.5vw, 1.75rem);
-    --feature-min: clamp(13rem, 18vw, 20rem);
-    --globe: clamp(2.25rem, 2.5vw + 1rem, 3.25rem);
-    --checker-w: clamp(2.75rem, 4.5vw, 6.5rem);
-    --checker-h: clamp(1.35rem, 2.2vw, 3rem);
-    --corner: clamp(0.65rem, 0.4vw + 0.4rem, 0.95rem);
-    --icon: clamp(1rem, 0.6vw + 0.7rem, 1.35rem);
-    --drawer-pad: clamp(1.25rem, 2.5vw, 2.25rem);
-    --drawer-max: clamp(18rem, 28vw, 28rem);
-    --section-gap: clamp(0.75rem, 1.5vh, 1.5rem);
-    --main-py: clamp(1.25rem, 4vh, 4rem);
+    --pad-x: clamp(1rem, 4vw, 4.5rem);
+    --pad-y: clamp(0.85rem, 2.8vh, 3.5rem);
+    --header-pt: clamp(1rem, 2.2vh, 2.25rem);
+    --gap-nav: clamp(0.75rem, 1.8vw, 2rem);
+    --logo: clamp(1.2rem, 2.5vw + 0.6rem, 2rem);
+    --logo-deg: clamp(0.6rem, 0.4vw + 0.4rem, 0.85rem);
+    --nav: clamp(0.68rem, 0.35vw + 0.45rem, 0.85rem);
+    --headline: clamp(1.85rem, 6vw + 0.5rem, 5.25rem);
+    --body: clamp(0.75rem, 0.35vw + 0.55rem, 0.95rem);
+    --micro: clamp(0.55rem, 0.25vw + 0.45rem, 0.75rem);
+    --btn-px: clamp(1rem, 1.4vw + 0.5rem, 1.75rem);
+    --btn-py: clamp(0.55rem, 0.8vh + 0.2rem, 0.85rem);
+    --btn-gap: clamp(0.5rem, 1vw, 1rem);
+    --feature-pad: clamp(0.85rem, 1.5vw, 1.75rem);
+    --feature-min: clamp(11rem, 22vw, 20rem);
+    --globe: clamp(2rem, 2.5vw + 0.8rem, 3.25rem);
+    --checker-w: clamp(2.25rem, 4vw, 6rem);
+    --checker-h: clamp(1.15rem, 2vw, 2.8rem);
+    --corner: clamp(0.55rem, 0.4vw + 0.35rem, 0.95rem);
+    --icon: clamp(0.95rem, 0.6vw + 0.65rem, 1.3rem);
+    --drawer-pad: clamp(1rem, 2.5vw, 2.25rem);
+    --drawer-max: min(100vw, 28rem);
+    --section-gap: clamp(0.65rem, 1.5vh, 1.5rem);
+    --main-py: clamp(1rem, 3.5vh, 3.5rem);
   }
 
   html {
     background-color: #000000;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
 
   body {
     font-family: var(--font-body);
     background-color: #000000;
     overflow-x: hidden;
+    touch-action: pan-y;
   }
+}
+
+/* Custom scrollbars for mobile & tablet overflow areas */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Hide scrollbar for clean horizontal swiping on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .font-heading {
