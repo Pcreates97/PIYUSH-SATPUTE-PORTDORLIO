@@ -3,12 +3,11 @@ import { SKILL_ITEMS } from './skillData';
 import { SkillCard } from './SkillCard';
 
 interface SkillOrbitProps {
-  // Speed of the orbital loop (cycles per second, default ~0.035 -> ~28s per full loop)
+  scrollProgress?: number;
   speed?: number;
-  isPaused?: boolean;
 }
 
-export const SkillOrbit: React.FC<SkillOrbitProps> = ({ speed = 0.036, isPaused = false }) => {
+export const SkillOrbit: React.FC<SkillOrbitProps> = ({ scrollProgress = 0, speed = 0.032 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animFrameIdRef = useRef<number | null>(null);
@@ -32,100 +31,91 @@ export const SkillOrbit: React.FC<SkillOrbitProps> = ({ speed = 0.036, isPaused 
     });
 
     resizeObserver.observe(container);
-
     const count = SKILL_ITEMS.length;
 
-    // Continuous GPU-accelerated 60/120fps Animation Loop
     const animate = (currentTime: number) => {
       if (lastTimeRef.current === null) {
         lastTimeRef.current = currentTime;
       }
-      // Clamp delta time to avoid frame spikes during tab switching or backgrounding
       const rawDelta = (currentTime - lastTimeRef.current) / 1000;
       const deltaTime = Math.min(rawDelta, 0.05);
       lastTimeRef.current = currentTime;
 
-      if (!isPaused) {
-        // Continuous smooth advancement wrapped in [0, 1)
-        offsetRef.current = (offsetRef.current + deltaTime * speed) % 1.0;
-      }
+      // Base continuous advancement + scroll-induced traversal
+      offsetRef.current = (offsetRef.current + deltaTime * speed) % 1.0;
+      const currentOffset = (offsetRef.current + scrollProgress * 1.5) % 1.0;
 
-      const currentOffset = offsetRef.current;
       const isMobile = width < 640;
-
-      // Trajectory bounds: smoothly enters from left offscreen, exits right offscreen
-      const offscreenPad = isMobile ? 140 : 180;
+      const offscreenPad = isMobile ? 120 : 180;
       const startX = -offscreenPad;
       const endX = width + offscreenPad;
-      const cardHalfWidth = isMobile ? 60 : 75;
-      const cardHalfHeight = isMobile ? 20 : 26;
+      const cardHalfWidth = isMobile ? 55 : 75;
+      const cardHalfHeight = isMobile ? 18 : 25;
 
-      // Arch apex & base heights
-      const apexY = isMobile ? height * 0.14 : height * 0.10;
+      const apexY = isMobile ? height * 0.16 : height * 0.12;
       const baseY = isMobile ? height * 0.74 : height * 0.72;
+
+      // Global density / opacity multiplier based on section scroll progress:
+      // 0.00 -> 0.15: Fade in from darkness
+      // 0.15 -> 0.75: Full living ecosystem
+      // 0.75 -> 0.95: Dissolve ecosystem towards central character
+      let globalEcoOpacity = 1;
+      if (scrollProgress < 0.15) {
+        globalEcoOpacity = scrollProgress / 0.15;
+      } else if (scrollProgress > 0.75) {
+        globalEcoOpacity = Math.max(0, (0.95 - scrollProgress) / 0.20);
+      }
 
       for (let i = 0; i < count; i++) {
         const el = cardRefs.current[i];
         if (!el) continue;
 
         const skill = SKILL_ITEMS[i];
-
-        // Continuous uniform phase for each of the 16 cards around the circle [0, 1)
-        // Adding 1.0 before modulo guarantees non-negative wrapping
         const u = ((i / count + currentOffset) % 1.0 + 1.0) % 1.0;
 
-        // 1. Horizontal Position (Left -> Right along full track)
         const rawX = startX + (endX - startX) * u;
-
-        // 2. Inverted-U Arch Path (Symmetric smooth parabolic curve peaking at u = 0.5)
         const archFactor = Math.sin(u * Math.PI);
-        const rawY = baseY - (baseY - apexY) * Math.pow(archFactor, 0.9);
+        const rawY = baseY - (baseY - apexY) * Math.pow(archFactor, 0.9) * skill.archHeightRatio;
 
-        // 3. Smooth Opacity & Scale Transitions
         let opacity = 1;
         let scale = 1;
 
-        // Smooth fade-in on entrance (u: 0.0 -> 0.10)
         if (u < 0.10) {
           const ratio = Math.max(0, u / 0.10);
           opacity = ratio;
           scale = 0.80 + 0.20 * ratio;
-        }
-        // Smooth fade-out on exit (u: 0.90 -> 1.00)
-        else if (u > 0.90) {
+        } else if (u > 0.90) {
           const ratio = Math.max(0, (1 - u) / 0.10);
           opacity = ratio;
           scale = 0.80 + 0.20 * ratio;
-        }
-        // Peak arch prominence
-        else {
+        } else {
           const apexProminence = Math.sin(u * Math.PI);
           scale = 0.95 + apexProminence * 0.08;
         }
 
-        // Depth tier adjustments
         let tierScaleMult = 1.0;
         let zIndex = 20;
 
         if (skill.depthTier === 'front') {
-          tierScaleMult = 1.06;
-          zIndex = 30; // In front of character
+          tierScaleMult = 1.05;
+          zIndex = 30;
         } else if (skill.depthTier === 'back') {
-          tierScaleMult = 0.92;
-          opacity *= 0.85;
-          zIndex = 8; // Behind character
+          tierScaleMult = 0.90;
+          opacity *= 0.8;
+          zIndex = 8;
         }
 
         const finalScale = scale * tierScaleMult;
-        // Smooth banking angle following the arch curvature
-        const tangentTilt = (u - 0.5) * 16;
-
+        const tangentTilt = (u - 0.5) * 14 + skill.tilt;
         const targetX = rawX - cardHalfWidth;
         const targetY = rawY - cardHalfHeight;
 
+        const finalOpacity = (opacity * globalEcoOpacity).toFixed(3);
+
         el.style.transform = `translate3d(${targetX.toFixed(1)}px, ${targetY.toFixed(1)}px, 0px) scale(${finalScale.toFixed(3)}) rotateZ(${tangentTilt.toFixed(1)}deg)`;
-        el.style.opacity = opacity.toFixed(3);
+        el.style.opacity = finalOpacity;
         el.style.zIndex = String(zIndex);
+        el.style.visibility = Number(finalOpacity) <= 0.001 ? 'hidden' : 'visible';
       }
 
       animFrameIdRef.current = requestAnimationFrame(animate);
@@ -139,24 +129,24 @@ export const SkillOrbit: React.FC<SkillOrbitProps> = ({ speed = 0.036, isPaused 
       }
       resizeObserver.disconnect();
     };
-  }, [speed, isPaused]);
+  }, [scrollProgress, speed]);
 
   return (
     <div
-      id="skill-orbit-container"
       ref={containerRef}
-      className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden select-none"
+      id="skill-orbit-viewport"
+      className="absolute inset-0 pointer-events-none overflow-hidden z-20"
+      aria-hidden="true"
     >
       {SKILL_ITEMS.map((skill, idx) => (
         <SkillCard
           key={skill.id}
-          skill={skill}
           ref={(el) => {
             cardRefs.current[idx] = el;
           }}
+          skill={skill}
         />
       ))}
     </div>
   );
 };
-

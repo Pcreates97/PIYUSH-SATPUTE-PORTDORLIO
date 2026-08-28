@@ -5,7 +5,7 @@ import {
   AI_PILLARS,
   CHAPTERS,
 } from './experienceData';
-import { Terminal, Cpu, Layers, Compass, ArrowDownRight } from 'lucide-react';
+import { Terminal, Cpu, Layers, Compass, ArrowDownRight, Sparkles } from 'lucide-react';
 
 export interface ExperienceCardsHandle {
   updateTelemetry: (progress: number, frameIndex: number) => void;
@@ -25,7 +25,6 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
 
     useImperativeHandle(ref, () => ({
       updateTelemetry: (progress: number, frameIndex: number) => {
-        // Fast direct textContent updates - Zero reflow / zero layout query
         if (orbitDegreesRef.current) {
           const deg = Math.round(progress * 360);
           orbitDegreesRef.current.textContent = `${String(deg).padStart(3, '0')}° / 360°`;
@@ -41,7 +40,6 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           progressPercentRef.current.textContent = `${pct}%`;
         }
 
-        // Fast chapter active state update - only touch styles when chapter changes
         let currentChapterIdx = 0;
         for (let i = 0; i < CHAPTERS.length; i++) {
           if (progress >= CHAPTERS[i].progress[0] && progress < CHAPTERS[i].progress[1]) {
@@ -94,9 +92,8 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             paddingTop: 'var(--header-pt)',
           }}
         >
-          {/* Left Section Label & Chapter Track beside THE BUILDER title */}
+          {/* Section Label & Chapter Track */}
           <div className="flex items-center gap-4 md:gap-6 lg:gap-8">
-            {/* Title Block */}
             <div className="flex items-center gap-3">
               <span className="w-2 h-2 rounded-xs bg-white animate-pulse" />
               <div className="flex flex-col">
@@ -109,10 +106,10 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
               </div>
             </div>
 
-            {/* Chapters 01 to 05 Track - Shifted Upside Beside The Builder Title */}
+            {/* Chapters Track */}
             <div
               id="hud-chapter-timeline"
-              className="hidden sm:flex items-center gap-2 md:gap-3 lg:gap-4 border-l border-neutral-800 pl-4 md:pl-5 lg:pl-6 pointer-events-auto"
+              className="hidden sm:flex items-center gap-2 md:gap-3 lg:gap-4 border-l border-neutral-800/80 pl-4 md:pl-5 lg:pl-6 pointer-events-auto"
             >
               {CHAPTERS.map((ch, idx) => {
                 const isInitial = idx === 0;
@@ -173,7 +170,7 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             </div>
           </div>
 
-          {/* Right HUD Live Orbit Metrics */}
+          {/* Right Live Orbit Telemetry */}
           <div className="flex items-center gap-4 text-right">
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase">
@@ -183,7 +180,7 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
                 000° / 360°
               </span>
             </div>
-            <div className="flex flex-col items-end border-l border-neutral-800 pl-4">
+            <div className="flex flex-col items-end border-l border-neutral-800/80 pl-4">
               <span className="text-[10px] font-mono tracking-widest text-neutral-400 uppercase">
                 FRAME
               </span>
@@ -194,7 +191,7 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           </div>
         </div>
 
-        {/* 3. Bottom HUD Bar */}
+        {/* 2. Bottom HUD Bar */}
         <div
           id="hud-bottom-bar"
           className="absolute bottom-6 inset-x-0 flex items-center justify-between z-20 text-[11px] font-mono tracking-widest text-neutral-500"
@@ -209,19 +206,19 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           </div>
 
           <div className="flex items-center gap-2 text-neutral-400">
-            <span>SCROLL TO ROTATE & DISCOVER</span>
+            <span>SCROLL TO TRAVERSE TIMELINE</span>
             <span className="animate-bounce">↓</span>
           </div>
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* 4. FULLSCREEN OPEN TYPOGRAPHY (LEFT, RIGHT, CENTER)           */}
+        {/* 3. REFINED LIQUID GLASS PANELS (ELEGANT, HIGHLY TRANSPARENT)  */}
         {/* ------------------------------------------------------------- */}
 
-        {/* 01: IDENTITY (Positioned on LEFT / Responsive Center on Mobile) */}
+        {/* 01: WHO I AM (Left-aligned, silky liquid glass) */}
         <div
           id="experience-card-01"
-          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-12 lg:inset-x-auto lg:left-24 xl:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-7 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
+          className="absolute z-20 left-4 sm:left-8 md:left-12 lg:left-20 xl:left-24 top-1/2 -translate-y-1/2 max-w-lg text-left pointer-events-none p-6 sm:p-7 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_12px_40px_rgba(0,0,0,0.6)] transition-all"
           style={{
             willChange: 'transform, opacity',
             transform: 'translate3d(0, 0px, 0) scale(1)',
@@ -229,69 +226,63 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             visibility: 'visible',
           }}
         >
-          <div className="flex items-center gap-2 mb-2 sm:mb-3">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span className="font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-neutral-400">
-              01 // IDENTITY
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-neutral-400">
+              01 // WHO I AM
             </span>
           </div>
 
-          <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block mb-1">
-            WHO I AM
-          </span>
-          <h2 className="font-orbitron text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white tracking-tight uppercase leading-none mb-3 sm:mb-4 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron text-3xl sm:text-5xl font-black text-white tracking-tight uppercase leading-none mb-3">
             PIYUSH
           </h2>
 
-          <div className="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 sm:gap-y-1.5 mb-3.5 sm:mb-5 font-mono text-[11px] sm:text-xs md:text-sm tracking-wider uppercase text-neutral-300">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-4 font-mono text-xs tracking-wider uppercase text-neutral-300">
             <span className="text-white font-semibold">CREATIVE DEVELOPER</span>
             <span className="text-neutral-600 font-light">/</span>
             <span className="text-white font-semibold">AI BUILDER</span>
             <span className="text-neutral-600 font-light">/</span>
-            <span className="text-white font-semibold">SYSTEMS ARCHITECT</span>
+            <span className="text-neutral-400">DIGITAL CREATOR</span>
           </div>
 
-          <p className="text-xs sm:text-sm md:text-base lg:text-lg text-neutral-200 font-light leading-relaxed max-w-lg drop-shadow-[0_2px_16px_rgba(0,0,0,0.95)]">
-            “I turn ideas into interactive digital experiences, AI-powered tools, and scalable systems with meticulous design and engineering.”
+          <p className="text-xs sm:text-sm text-neutral-300 font-light leading-relaxed">
+            I craft interactive digital experiences, generative AI tools, and scalable software systems with mathematical precision and tactile polish.
           </p>
         </div>
 
-        {/* 02: JOURNEY (Positioned on RIGHT / Responsive Center on Mobile) */}
+        {/* 02: MY JOURNEY (Right-aligned, silky liquid glass) */}
         <div
           id="experience-card-02"
-          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-12 lg:inset-x-auto lg:right-24 xl:right-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-7 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
+          className="absolute z-20 right-4 sm:right-8 md:right-12 lg:right-20 xl:right-24 top-1/2 -translate-y-1/2 max-w-lg text-left pointer-events-none p-6 sm:p-7 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_12px_40px_rgba(0,0,0,0.6)] transition-all"
           style={{
             willChange: 'transform, opacity',
-            transform: 'translate3d(0, 30px, 0) scale(0.98)',
+            transform: 'translate3d(30px, 0px, 0) scale(0.98)',
             opacity: 0,
             visibility: 'hidden',
           }}
         >
-          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
-            <Layers size={14} className="text-white/80" />
-            <span className="font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-neutral-400">
-              02 // PROGRESSION
+          <div className="flex items-center gap-2 mb-2">
+            <Layers size={13} className="text-white/80" />
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-neutral-400">
+              02 // TRAJECTORY
             </span>
           </div>
 
-          <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block mb-1">
-            TRAJECTORY & MILESTONES
-          </span>
-          <h2 className="font-orbitron text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight uppercase leading-none mb-4 sm:mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron text-2xl sm:text-4xl font-black text-white tracking-tight uppercase leading-none mb-4">
             MY JOURNEY
           </h2>
 
-          <div className="space-y-3 sm:space-y-4 max-w-lg max-h-[48vh] lg:max-h-none overflow-y-auto custom-scrollbar pr-1">
-            {JOURNEY_MILESTONES.map((item) => (
-              <div key={item.number} className="group flex items-start gap-3 sm:gap-4">
-                <span className="font-mono text-xs sm:text-sm md:text-base font-bold text-white tracking-widest pt-0.5 shrink-0 drop-shadow">
+          <div className="space-y-3 max-h-[46vh] overflow-y-auto custom-scrollbar pr-1">
+            {JOURNEY_MILESTONES.slice(0, 4).map((item) => (
+              <div key={item.number} className="flex items-start gap-3">
+                <span className="font-mono text-xs font-bold text-white tracking-widest pt-0.5 shrink-0">
                   {item.number}
                 </span>
-                <div className="border-l border-neutral-700/80 pl-3 sm:pl-3.5">
-                  <h3 className="font-mono text-[11px] sm:text-xs md:text-sm font-semibold text-white tracking-wider uppercase drop-shadow">
+                <div className="border-l border-white/15 pl-3">
+                  <h3 className="font-mono text-xs font-semibold text-white tracking-wider uppercase">
                     {item.title}
                   </h3>
-                  <p className="text-[11px] sm:text-xs md:text-[13px] text-neutral-300 leading-relaxed font-light mt-0.5 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+                  <p className="text-[11px] text-neutral-300 leading-relaxed font-light mt-0.5">
                     {item.description}
                   </p>
                 </div>
@@ -300,45 +291,42 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           </div>
         </div>
 
-        {/* 03: TECH STACK (Positioned on LEFT / Responsive Center on Mobile) */}
+        {/* 03: WHAT I CODE (Left-aligned, silky liquid glass) */}
         <div
           id="experience-card-03"
-          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-12 lg:inset-x-auto lg:left-24 xl:left-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-7 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
+          className="absolute z-20 left-4 sm:left-8 md:left-12 lg:left-20 xl:left-24 top-1/2 -translate-y-1/2 max-w-lg text-left pointer-events-none p-6 sm:p-7 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_12px_40px_rgba(0,0,0,0.6)] transition-all"
           style={{
             willChange: 'transform, opacity',
-            transform: 'translate3d(0, 30px, 0) scale(0.98)',
+            transform: 'translate3d(-30px, 0px, 0) scale(0.98)',
             opacity: 0,
             visibility: 'hidden',
           }}
         >
-          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
-            <Terminal size={14} className="text-white/80" />
-            <span className="font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-neutral-400">
+          <div className="flex items-center gap-2 mb-2">
+            <Terminal size={13} className="text-white/80" />
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-neutral-400">
               03 // TECHNICAL STACK
             </span>
           </div>
 
-          <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block mb-1">
-            LANGUAGES, FRAMEWORKS & SYSTEMS
-          </span>
-          <h2 className="font-orbitron text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight uppercase leading-none mb-4 sm:mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron text-2xl sm:text-4xl font-black text-white tracking-tight uppercase leading-none mb-4">
             WHAT I CODE
           </h2>
 
-          <div className="space-y-3.5 sm:space-y-5 max-w-xl max-h-[48vh] lg:max-h-none overflow-y-auto custom-scrollbar pr-1">
+          <div className="space-y-4 max-h-[46vh] overflow-y-auto custom-scrollbar pr-1">
             {SKILL_CATEGORIES.map((cat) => (
-              <div key={cat.category} className="space-y-1.5 sm:space-y-2">
-                <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block">
+              <div key={cat.category} className="space-y-1.5">
+                <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase block">
                   // {cat.category}
                 </span>
-                <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1.5 sm:gap-y-2">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                   {cat.skills.map((skill) => (
-                    <div key={skill.name} className="flex items-center gap-1.5 sm:gap-2 font-mono text-[11px] sm:text-xs md:text-sm">
+                    <div key={skill.name} className="flex items-center gap-1.5 font-mono text-[11px]">
                       <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
-                      <span className="text-white font-medium tracking-wide drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                      <span className="text-white font-medium tracking-wide">
                         {skill.name}
                       </span>
-                      <span className="text-[9px] sm:text-[10px] text-neutral-500 font-normal">[{skill.tag}]</span>
+                      <span className="text-[9px] text-neutral-500">[{skill.tag}]</span>
                     </div>
                   ))}
                 </div>
@@ -347,43 +335,40 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           </div>
         </div>
 
-        {/* 04: AI & SYSTEMS (Positioned on RIGHT / Responsive Center on Mobile) */}
+        {/* 04: BUILDING WITH AI (Right-aligned, silky liquid glass) */}
         <div
           id="experience-card-04"
-          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-12 lg:inset-x-auto lg:right-24 xl:right-28 top-1/2 -translate-y-1/2 max-w-2xl text-left pointer-events-none bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-7 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
+          className="absolute z-20 right-4 sm:right-8 md:right-12 lg:right-20 xl:right-24 top-1/2 -translate-y-1/2 max-w-lg text-left pointer-events-none p-6 sm:p-7 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_12px_40px_rgba(0,0,0,0.6)] transition-all"
           style={{
             willChange: 'transform, opacity',
-            transform: 'translate3d(0, 30px, 0) scale(0.98)',
+            transform: 'translate3d(30px, 0px, 0) scale(0.98)',
             opacity: 0,
             visibility: 'hidden',
           }}
         >
-          <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
-            <Cpu size={14} className="text-white/80" />
-            <span className="font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-neutral-400">
+          <div className="flex items-center gap-2 mb-2">
+            <Cpu size={13} className="text-white/80" />
+            <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-neutral-400">
               04 // CAPABILITIES
             </span>
           </div>
 
-          <span className="text-[10px] sm:text-xs font-mono tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 uppercase block mb-1">
-            CREATIVE ENGINEERING & AGENTS
-          </span>
-          <h2 className="font-orbitron text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white tracking-tight uppercase leading-none mb-4 sm:mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
-            AI & SYSTEMS
+          <h2 className="font-orbitron text-2xl sm:text-4xl font-black text-white tracking-tight uppercase leading-none mb-4">
+            BUILDING WITH AI
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-3.5 sm:gap-y-5 max-w-xl max-h-[48vh] lg:max-h-none overflow-y-auto custom-scrollbar pr-1">
-            {AI_PILLARS.map((pillar, idx) => (
-              <div key={pillar.title} className="space-y-1 sm:space-y-1.5">
-                <div className="flex items-center gap-2 font-mono text-[9px] sm:text-[10px] text-neutral-400 tracking-widest uppercase">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[46vh] overflow-y-auto custom-scrollbar pr-1">
+            {AI_PILLARS.slice(0, 4).map((pillar, idx) => (
+              <div key={pillar.title} className="space-y-1">
+                <div className="flex items-center gap-1.5 font-mono text-[9px] text-neutral-400 tracking-widest uppercase">
                   <span>0{idx + 1}</span>
                   <span>/</span>
                   <span className="text-neutral-300 font-semibold">{pillar.tag}</span>
                 </div>
-                <h3 className="font-orbitron text-xs sm:text-sm md:text-base font-bold text-white tracking-wide uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                <h3 className="font-orbitron text-xs font-bold text-white uppercase">
                   {pillar.title}
                 </h3>
-                <p className="text-[11px] sm:text-xs md:text-[13px] text-neutral-300 font-light leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                <p className="text-[11px] text-neutral-300 font-light leading-relaxed">
                   {pillar.description}
                 </p>
               </div>
@@ -391,10 +376,10 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
           </div>
         </div>
 
-        {/* 05: MANIFESTO (FULLSCREEN CENTERED TYPOGRAPHY) */}
+        {/* 05: MANIFESTO (Centered, confident statement) */}
         <div
           id="experience-card-05"
-          className="absolute z-20 inset-x-4 sm:inset-x-8 md:inset-x-20 top-1/2 -translate-y-1/2 text-center pointer-events-none flex flex-col items-center justify-center bg-neutral-950/80 sm:bg-neutral-950/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-5 sm:p-8 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-800/80 lg:border-none shadow-2xl lg:shadow-none"
+          className="absolute z-20 inset-x-6 sm:inset-x-12 md:inset-x-20 top-1/2 -translate-y-1/2 text-center pointer-events-none flex flex-col items-center justify-center p-8 rounded-3xl bg-white/[0.02] backdrop-blur-2xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_20px_60px_rgba(0,0,0,0.8)]"
           style={{
             willChange: 'transform, opacity',
             transform: 'translate3d(0, 35px, 0) scale(0.95)',
@@ -402,24 +387,24 @@ export const ExperienceCards = forwardRef<ExperienceCardsHandle, ExperienceCards
             visibility: 'hidden',
           }}
         >
-          <span className="font-mono text-[10px] sm:text-xs md:text-sm tracking-[0.25em] sm:tracking-[0.35em] uppercase text-neutral-400 block mb-2 sm:mb-3 drop-shadow">
+          <span className="font-mono text-[10px] sm:text-xs tracking-[0.3em] uppercase text-neutral-400 block mb-3">
             05 // CREATOR PHILOSOPHY
           </span>
 
-          <h2 className="font-orbitron font-extrabold text-2xl sm:text-4xl md:text-6xl lg:text-8xl text-neutral-400 uppercase tracking-tight leading-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+          <h2 className="font-orbitron font-extrabold text-2xl sm:text-4xl md:text-6xl text-neutral-400 uppercase tracking-tight leading-none">
             I DON'T JUST LEARN.
           </h2>
-          <h1 className="font-orbitron font-black text-4xl sm:text-6xl md:text-8xl lg:text-9xl text-white uppercase tracking-tight leading-none mt-1 sm:mt-2 mb-4 sm:mb-6 drop-shadow-[0_8px_40px_rgba(0,0,0,1)]">
+          <h1 className="font-orbitron font-black text-4xl sm:text-6xl md:text-8xl text-white uppercase tracking-tight leading-none mt-2 mb-4 drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">
             I BUILD.
           </h1>
 
-          <p className="text-xs sm:text-base md:text-xl text-neutral-200 font-light max-w-2xl mx-auto leading-relaxed drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]">
-            “Every project is an experiment in craft, speed, and precision.”
+          <p className="text-xs sm:text-base md:text-lg text-neutral-300 font-light max-w-xl mx-auto leading-relaxed">
+            Every idea is an opportunity to experiment, iterate, and deliver software that matters.
           </p>
 
-          <div className="mt-4 sm:mt-8 inline-flex items-center gap-2 text-[10px] sm:text-xs font-mono text-neutral-400 tracking-widest uppercase drop-shadow">
-            <span>READY FOR DEPLOYMENT</span>
-            <ArrowDownRight size={14} className="text-white" />
+          <div className="mt-6 inline-flex items-center gap-2 text-xs font-mono text-neutral-400 tracking-widest uppercase">
+            <span>TRANSITIONING TO AI ECOSYSTEM</span>
+            <ArrowDownRight size={14} className="text-white animate-bounce" />
           </div>
         </div>
       </div>

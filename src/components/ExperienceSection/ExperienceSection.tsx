@@ -15,6 +15,7 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const canvasHandleRef = useRef<ImageSequenceCanvasHandle | null>(null);
   const cardsHandleRef = useRef<ExperienceCardsHandle | null>(null);
+  const blackoutRef = useRef<HTMLDivElement | null>(null);
 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(false);
 
@@ -28,13 +29,12 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // GSAP ScrollTrigger Master Timeline - 100% Zero React Re-render Scrubbing
+  // GSAP ScrollTrigger Master Timeline
   useEffect(() => {
     const container = containerRef.current;
     const sticky = stickyRef.current;
     if (!container || !sticky) return;
 
-    // Immediately synchronize HUD telemetry and initial frame on component startup
     cardsHandleRef.current?.updateTelemetry(0, 0);
     canvasHandleRef.current?.renderFrame(0);
 
@@ -42,7 +42,7 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
       const frameTracker = { frame: 0 };
       let lastRenderedFrame = -1;
 
-      // 1. Create scrubbed master timeline with fluid physics damping
+      // 1. Create scrubbed master timeline with physical damping
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: container,
@@ -50,7 +50,7 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
           end: 'bottom bottom',
           pin: sticky,
           pinSpacing: true,
-          scrub: 0.4, // Silky smooth Apple-style inertia scrub
+          scrub: 0.35,
           anticipatePin: 1,
           invalidateOnRefresh: true,
         },
@@ -79,7 +79,7 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
         0
       );
 
-      // Section 01: IDENTITY (Left-aligned, visible on entry 0.00 to 0.20)
+      // Section 01: IDENTITY (Left-aligned, visible 0.00 to 0.18)
       tl.fromTo(
         '#experience-card-01',
         { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto' },
@@ -87,60 +87,69 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
         0
       ).to(
         '#experience-card-01',
-        { autoAlpha: 0, x: -25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.18
+        { autoAlpha: 0, x: -20, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        0.16
       );
 
-      // Section 02: JOURNEY (Right-aligned, 0.22 to 0.42)
+      // Section 02: JOURNEY (Right-aligned, 0.20 to 0.38)
       tl.fromTo(
         '#experience-card-02',
-        { autoAlpha: 0, x: 35, scale: 0.98, pointerEvents: 'none' },
+        { autoAlpha: 0, x: 25, scale: 0.98, pointerEvents: 'none' },
         { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.22
+        0.20
       ).to(
         '#experience-card-02',
-        { autoAlpha: 0, x: 25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        { autoAlpha: 0, x: 20, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        0.36
+      );
+
+      // Section 03: WHAT I CODE (Left-aligned, 0.39 to 0.58)
+      tl.fromTo(
+        '#experience-card-03',
+        { autoAlpha: 0, x: -25, scale: 0.98, pointerEvents: 'none' },
+        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
         0.39
-      );
-
-      // Section 03: TECH STACK (Left-aligned, 0.43 to 0.63)
-      tl.fromTo(
-        '#experience-card-03',
-        { autoAlpha: 0, x: -35, scale: 0.98, pointerEvents: 'none' },
-        { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.43
       ).to(
         '#experience-card-03',
-        { autoAlpha: 0, x: -25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.60
+        { autoAlpha: 0, x: -20, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        0.55
       );
 
-      // Section 04: AI & SYSTEMS (Right-aligned, 0.64 to 0.82)
+      // Section 04: BUILDING WITH AI (Right-aligned, 0.59 to 0.77)
       tl.fromTo(
         '#experience-card-04',
-        { autoAlpha: 0, x: 35, scale: 0.98, pointerEvents: 'none' },
+        { autoAlpha: 0, x: 25, scale: 0.98, pointerEvents: 'none' },
         { autoAlpha: 1, x: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.64
+        0.59
       ).to(
         '#experience-card-04',
-        { autoAlpha: 0, x: 25, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.79
+        { autoAlpha: 0, x: 20, scale: 0.98, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        0.75
       );
 
-      // Section 05: MANIFESTO (Centered, 0.83 to 0.98)
+      // Section 05: MANIFESTO (Centered, 0.78 to 0.92)
       tl.fromTo(
         '#experience-card-05',
-        { autoAlpha: 0, y: 35, scale: 0.95, pointerEvents: 'none' },
+        { autoAlpha: 0, y: 25, scale: 0.96, pointerEvents: 'none' },
         { autoAlpha: 1, y: 0, scale: 1, pointerEvents: 'auto', ease: 'power2.out', duration: 0.05 },
-        0.83
+        0.78
       ).to(
         '#experience-card-05',
-        { autoAlpha: 0, y: -20, scale: 1.02, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
-        0.96
+        { autoAlpha: 0, y: -15, scale: 1.02, pointerEvents: 'none', ease: 'power2.in', duration: 0.04 },
+        0.90
       );
+
+      // Final Transition to Blackness (0.88 -> 1.0): Camera finishes -> darkness increases -> clean world transition
+      if (blackoutRef.current) {
+        tl.fromTo(
+          blackoutRef.current,
+          { opacity: 0 },
+          { opacity: 1, ease: 'power2.inOut', duration: 0.12 },
+          0.88
+        );
+      }
     }, container);
 
-    // Trigger recalculation after layout has settled
     const t1 = setTimeout(() => ScrollTrigger.refresh(), 100);
     const t2 = setTimeout(() => ScrollTrigger.refresh(), 500);
 
@@ -157,10 +166,9 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
       ref={containerRef}
       className="relative w-full bg-black text-white selection:bg-white selection:text-black"
       style={{
-        // 600vh scroll height delivers silky-smooth scrubbing through 150 frames with zero lag
         height: '600vh',
       }}
-      aria-label="Section 2: Experience & Spatial Identity Sequence"
+      aria-label="Section 2: The Builder Sequence"
     >
       {/* Pinned Cinematic 100vw x 100vh Viewport */}
       <div
@@ -168,17 +176,24 @@ export function ExperienceSection({ totalFrames = 150 }: ExperienceSectionProps)
         ref={stickyRef}
         className="w-full h-screen overflow-hidden z-10 flex items-center justify-center bg-black relative"
       >
-        {/* 1. Ultra-High Performance Image Sequence Canvas with hardware decoding & RAF scheduler */}
+        {/* 1. Ultra-High Performance Image Sequence Canvas */}
         <ImageSequenceCanvas
           ref={canvasHandleRef}
           totalFrames={totalFrames}
           initialFrame={0}
         />
 
-        {/* 2. Glassmorphic Information Panels & HUD Overlay */}
+        {/* 2. Glassmorphic Liquid Information Panels & HUD Overlay */}
         <ExperienceCards
           ref={cardsHandleRef}
           totalFrames={totalFrames}
+        />
+
+        {/* 3. Smooth Blackout Scrim leading into Section 3 */}
+        <div
+          ref={blackoutRef}
+          className="absolute inset-0 bg-black pointer-events-none z-30 opacity-0"
+          aria-hidden="true"
         />
       </div>
     </section>

@@ -4,12 +4,10 @@
  */
 
 import { useState, useEffect } from 'react';
-import { ArrowUpRight, Check, Code2, Menu, X as CloseIcon } from 'lucide-react';
+import { ArrowUpRight, Check, Code2, Menu, X as CloseIcon, Volume2, VolumeX } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ImageRevealBackground, BG_IMAGE_1 } from './components/ImageRevealBackground';
-
-gsap.registerPlugin(ScrollTrigger);
+import { ImageRevealBackground } from './components/ImageRevealBackground';
 import {
   CornerBracketTL,
   CornerBracketTR,
@@ -23,15 +21,24 @@ import ExperienceSection from './components/ExperienceSection/ExperienceSection'
 import { AICodingSkills } from './components/AICodingSkills';
 import { LanguageSkillsSection } from './components/LanguageSkills';
 import { ProjectsSection } from './components/ProjectsSection';
+import { AboutSection } from './components/AboutSection';
+import { ContactSection } from './components/ContactSection';
 import { Footer16 } from './components/Footer16';
 import { GradualBlur } from './components/GradualBlur';
+import { CustomCursor } from './components/CustomCursor';
+import { Preloader } from './components/Preloader';
+import { AudioSynthesizer } from './components/AudioSynthesizer';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
   const [activeDrawer, setActiveDrawer] = useState<DrawerType>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(false);
+  const [isPreloaderDone, setIsPreloaderDone] = useState<boolean>(false);
 
-  // Global ScrollTrigger synchronization on font loading and image ready
+  // Global ScrollTrigger synchronization
   useEffect(() => {
     const handleRefresh = () => {
       ScrollTrigger.refresh();
@@ -43,8 +50,8 @@ export default function App() {
     window.addEventListener('load', handleRefresh);
     window.addEventListener('resize', handleRefresh);
 
-    const t1 = setTimeout(handleRefresh, 200);
-    const t2 = setTimeout(handleRefresh, 800);
+    const t1 = setTimeout(handleRefresh, 300);
+    const t2 = setTimeout(handleRefresh, 900);
 
     return () => {
       clearTimeout(t1);
@@ -61,11 +68,28 @@ export default function App() {
     }, 3000);
   };
 
+  const toggleSound = () => {
+    setSoundEnabled((prev) => {
+      const next = !prev;
+      showToast(next ? 'Ambient audio synthesis enabled' : 'Ambient audio muted');
+      return next;
+    });
+  };
+
   return (
     <div
       id="lgpsm-portfolio-root"
-      className="min-h-screen bg-black text-white font-jakarta flex flex-col relative overflow-x-hidden selection:bg-white selection:text-black"
+      className="min-h-screen bg-black text-white font-jakarta flex flex-col relative overflow-x-hidden selection:bg-white selection:text-black cursor-default"
     >
+      {/* 0. Preloader Screen */}
+      <Preloader onComplete={() => setIsPreloaderDone(true)} />
+
+      {/* 0B. Custom Spatial Cursor */}
+      <CustomCursor />
+
+      {/* 0C. Ambient Synthesizer */}
+      <AudioSynthesizer enabled={soundEnabled} />
+
       {/* 1. Desktop Interactive Image Reveal Background with Spotlight & Parallax Grid */}
       <ImageRevealBackground />
 
@@ -86,18 +110,18 @@ export default function App() {
           id="action-toast"
           role="status"
           aria-live="polite"
-          className="fixed top-6 right-6 z-50 flex items-center gap-2.5 bg-neutral-900 text-white px-4 py-3 rounded-md shadow-2xl border border-neutral-700 animate-in fade-in slide-in-from-top-2 duration-200"
+          className="fixed top-6 right-6 z-50 flex items-center gap-2.5 bg-neutral-950/95 text-white px-4 py-3 rounded-xl shadow-2xl border border-neutral-800 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200"
         >
           <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
             <Check size={13} strokeWidth={2.5} />
           </div>
-          <span className="font-jakarta text-xs tracking-wide font-medium">
+          <span className="font-mono text-xs tracking-wider font-medium">
             {toastMessage}
           </span>
         </div>
       )}
 
-      {/* 3. Header */}
+      {/* 3. Minimalist Header */}
       <header
         id="main-header"
         className="relative z-20 flex items-center justify-between"
@@ -145,7 +169,7 @@ export default function App() {
           <button
             id="nav-projects-btn"
             onClick={() => setActiveDrawer('projects')}
-            className={`hover:opacity-50 transition-opacity cursor-pointer py-1 px-1.5 ${
+            className={`hover:text-neutral-400 transition-colors cursor-pointer py-1 px-1.5 ${
               activeDrawer === 'projects' ? 'text-neutral-400' : ''
             }`}
           >
@@ -155,7 +179,7 @@ export default function App() {
           <button
             id="nav-expertise-btn"
             onClick={() => setActiveDrawer('expertise')}
-            className={`hover:opacity-50 transition-opacity cursor-pointer py-1 px-1.5 ${
+            className={`hover:text-neutral-400 transition-colors cursor-pointer py-1 px-1.5 ${
               activeDrawer === 'expertise' ? 'text-neutral-400' : ''
             }`}
           >
@@ -165,7 +189,7 @@ export default function App() {
           <button
             id="nav-about-btn"
             onClick={() => setActiveDrawer('about')}
-            className={`hover:opacity-50 transition-opacity cursor-pointer py-1 px-1.5 ${
+            className={`hover:text-neutral-400 transition-colors cursor-pointer py-1 px-1.5 ${
               activeDrawer === 'about' ? 'text-neutral-400' : ''
             }`}
           >
@@ -175,21 +199,33 @@ export default function App() {
           <button
             id="nav-contact-btn"
             onClick={() => setActiveDrawer('contact')}
-            className={`hover:opacity-50 transition-opacity cursor-pointer py-1 px-1.5 ${
+            className={`hover:text-neutral-400 transition-colors cursor-pointer py-1 px-1.5 ${
               activeDrawer === 'contact' ? 'text-neutral-400' : ''
             }`}
           >
             CONTACT
           </button>
 
-          <span className="text-neutral-700 select-none" aria-hidden="true">
-            |
+          <span className="text-neutral-800 select-none" aria-hidden="true">
+            /
           </span>
 
+          {/* Sound Toggle */}
+          <button
+            id="nav-sound-toggle-btn"
+            onClick={toggleSound}
+            className="hover:text-neutral-400 transition-colors cursor-pointer flex items-center justify-center p-1.5 text-neutral-400 hover:text-white"
+            aria-label={soundEnabled ? 'Mute ambient sound' : 'Enable ambient sound'}
+            title={soundEnabled ? 'Mute ambient sound' : 'Enable ambient sound'}
+          >
+            {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+          </button>
+
+          {/* Code Blueprint Trigger */}
           <button
             id="nav-terminal-btn"
             onClick={() => setActiveDrawer('projects')}
-            className="hover:opacity-50 transition-opacity cursor-pointer flex items-center justify-center p-1.5"
+            className="hover:text-neutral-400 transition-colors cursor-pointer flex items-center justify-center p-1.5"
             aria-label="View Code Projects"
             title="Projects & Architecture"
           >
@@ -202,6 +238,14 @@ export default function App() {
 
         {/* Mobile Action Bar Trigger (<768px) */}
         <div className="flex md:hidden items-center gap-2">
+          <button
+            onClick={toggleSound}
+            className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg border border-neutral-800 bg-neutral-950/90 text-neutral-400 hover:text-white"
+            aria-label="Sound Toggle"
+          >
+            {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          </button>
+
           <button
             id="mobile-quick-projects-btn"
             onClick={() => setActiveDrawer('projects')}
@@ -278,7 +322,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 4. Main Hero Section */}
+      {/* 4. Section 1: Hero Section */}
       <section
         id="hero-main"
         className="relative z-10 min-h-[calc(100vh-100px)] flex flex-col justify-between"
@@ -300,6 +344,12 @@ export default function App() {
               <CornerBracketTL id="hero-tl-bracket" />
             </div>
 
+            {/* Section Index Marker */}
+            <div className="flex items-center gap-2 mb-3 text-neutral-400 font-mono text-[11px] tracking-[0.3em] uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <span>01 // ARCHITECTURAL CORE</span>
+            </div>
+
             {/* Orbitron Headline */}
             <h1
               id="hero-headline"
@@ -316,6 +366,11 @@ export default function App() {
               </span>
             </h1>
 
+            {/* Supporting Editorial Line */}
+            <p className="mt-4 text-neutral-300 font-light text-sm sm:text-base md:text-lg max-w-xl leading-relaxed">
+              Turning complex codebases, multi-modal AI systems, and generative graphics into tactile digital reality.
+            </p>
+
             {/* Bottom-Left Corner Bracket */}
             <div className="mt-2 text-white">
               <CornerBracketBL id="hero-bl-bracket" />
@@ -326,7 +381,7 @@ export default function App() {
               <button
                 id="cta-projects-btn"
                 onClick={() => setActiveDrawer('projects')}
-                className="group inline-flex items-center justify-center border border-neutral-600 rounded-md uppercase font-jakarta font-medium text-white hover:bg-white hover:text-black hover:border-white transition-all duration-200 cursor-pointer min-h-[44px]"
+                className="group inline-flex items-center justify-center border border-white bg-white text-black rounded-md uppercase font-jakarta font-semibold hover:bg-neutral-200 transition-all duration-200 cursor-pointer min-h-[44px] shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                 style={{
                   letterSpacing: '0.18em',
                   fontSize: 'var(--body)',
@@ -339,14 +394,14 @@ export default function App() {
                 <ArrowUpRight
                   className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                   style={{ width: 'var(--icon)', height: 'var(--icon)' }}
-                  strokeWidth={1.5}
+                  strokeWidth={2}
                 />
               </button>
 
               <button
                 id="cta-contact-btn"
                 onClick={() => setActiveDrawer('contact')}
-                className="inline-flex items-center justify-center uppercase font-jakarta font-medium text-neutral-400 hover:text-white transition-colors duration-200 cursor-pointer min-h-[44px]"
+                className="inline-flex items-center justify-center uppercase font-jakarta font-medium text-neutral-400 hover:text-white transition-colors duration-200 cursor-pointer min-h-[44px] border border-neutral-800 rounded-md"
                 style={{
                   letterSpacing: '0.18em',
                   fontSize: 'var(--body)',
@@ -364,12 +419,10 @@ export default function App() {
             id="hero-right-container"
             className="self-start sm:self-center lg:self-end flex flex-col justify-end items-start sm:items-center lg:items-end w-full lg:w-auto mt-8 lg:mt-0 relative z-20 pointer-events-auto"
           >
-            {/* Right Feature Block */}
             <div
               id="hero-right-feature-block"
               className="self-start lg:self-end relative w-full sm:w-auto"
             >
-              {/* Framed box with 4 absolute corner brackets */}
               <div
                 id="feature-framed-box"
                 className="relative flex flex-col items-start"
@@ -378,7 +431,6 @@ export default function App() {
                   padding: 'var(--feature-pad)',
                 }}
               >
-                {/* Absolute Corners */}
                 <div className="absolute top-0 left-0 text-white">
                   <CornerBracketTL id="feature-corner-tl" />
                 </div>
@@ -392,12 +444,10 @@ export default function App() {
                   <CornerBracketBR id="feature-corner-br" />
                 </div>
 
-                {/* Wireframe Globe SVG */}
                 <div className="text-white mb-2 sm:mb-3">
                   <WireframeGlobe id="feature-wireframe-globe" />
                 </div>
 
-                {/* Tagline */}
                 <div
                   id="feature-tagline"
                   className="font-jakarta font-semibold uppercase text-white leading-snug"
@@ -421,7 +471,7 @@ export default function App() {
           style={{ paddingInline: 'var(--pad-x)' }}
         >
           <div className="flex items-center gap-2 text-neutral-500 text-[10px] sm:text-[11px] font-mono tracking-widest uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
             <span>PIYUSH · PORTFOLIO // 2026</span>
           </div>
           <button
@@ -436,7 +486,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* Gradual progressive blur at hero bottom leading smoothly into Experience Section */}
         <GradualBlur 
           position="bottom" 
           height="5.5rem" 
@@ -447,25 +496,34 @@ export default function App() {
         />
       </section>
 
-      {/* 5. Section 2: Cinematic Scroll-Scrubbed Experience */}
+      {/* 5. Section 2: Cinematic Scroll-Scrubbed Experience (The Builder - 150 Frames) */}
       <ExperienceSection totalFrames={150} />
 
       {/* 6. Section 3: AI Coding Skills & Inverted-U Orbital Universe */}
       <AICodingSkills />
 
-      {/* 7. Section 4: Language Skills & Glowing Particles Neural Core */}
+      {/* 7. Section 4: Language System & Digital Knowledge Core */}
       <LanguageSkillsSection />
 
-      {/* 8. Section 5: Interactive Featured Projects & Expandable Profiles with Full GSAP */}
+      {/* 8. Section 5: Editorial Projects Showcase */}
       <ProjectsSection
         onOpenDrawer={setActiveDrawer}
         onShowToast={showToast}
       />
 
-      {/* 9. Footer (Footer-16 Architecture with Watermark Typography & Ambient Assets) */}
+      {/* 9. Section 6: About & Currently Building Initiatives */}
+      <AboutSection onOpenDrawer={setActiveDrawer} />
+
+      {/* 10. Section 7: Contact & Call to Action */}
+      <ContactSection
+        onOpenDrawer={setActiveDrawer}
+        onShowToast={showToast}
+      />
+
+      {/* 11. Footer (Footer-16 Architecture) */}
       <Footer16 onOpenDrawer={setActiveDrawer} />
 
-      {/* 7. Side Drawers (PROJECTS, EXPERTISE, ABOUT, CONTACT) */}
+      {/* 12. Side Drawers (PROJECTS, EXPERTISE, ABOUT, CONTACT) */}
       <Drawers
         activeDrawer={activeDrawer}
         onClose={() => setActiveDrawer(null)}
